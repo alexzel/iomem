@@ -1,0 +1,14 @@
+{
+  "extends": "standard",
+  "parserOptions": {
+    "sourceType": "script"
+  },
+  "env": {
+    "node": true,
+    "jest": true
+  },
+  "rules": {
+    "strict": ["error", "global"],
+    "no-multi-spaces": ["error", { ignoreEOLComments: true }]
+  }
+}

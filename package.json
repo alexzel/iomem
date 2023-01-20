@@ -1,0 +1,50 @@
+{
+  "name": "iomem",
+  "version": "0.0.1",
+  "description": "Memcached client with binary protocol support and multi keys commands",
+  "keywords": [
+    "cache",
+    "memcache",
+    "memcached",
+    "nosql",
+    "elasticache",
+    "client",
+    "cluster",
+    "binary",
+    "protocol",
+    "multi",
+    "multi-get",
+    "multi-set",
+    "multi-del",
+    "failover",
+    "hashring",
+    "async",
+    "promise"
+  ],
+  "repository": "https://github.com/alexzel/iomem.git",
+  "author": "Alex Zelensky",
+  "license": "MIT",
+  "scripts": {
+    "lint": "eslint ./src",
+    "test": "jest",
+    "pretest": "yarn run lint",
+    "release": "yarn version",
+    "preversion": "yarn install && yarn test",
+    "postversion": "git push --tags && yarn publish . --new-version $npm_package_version && git push && echo Successfully released version $npm_package_version!",
+    "cleanup": "git tag -d $(git tag) && git fetch --all --tags && git clean --force -d -x && git reset --hard origin/main && git checkout main"
+  },
+  "files": [
+    "src"
+  ],
+  "devDependencies": {
+    "eslint": "^8.31.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.6.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "jest": "^29.3.1"
+  },
+  "dependencies": {
+    "hashring": "^3.2.0"
+  }
+}
