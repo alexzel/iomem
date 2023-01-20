@@ -49,8 +49,8 @@ class NetStream extends Transform {
 
       const timeout = setTimeout(() => {
         sock.unpipe(pass)
-        cb(new Error(`iomem: request timeout (${1000})`))
-      }, 1000)
+        cb(new Error(`iomem: request timeoutttt (${1000})`))
+      }, (sock.readyState === 'opening' || sock.readyState === 'closed' ? 1000 : 0) + 500)
 
       const done = (err, data) => {
         clearTimeout(timeout)

@@ -5,7 +5,7 @@ const Net = require('./net')
 const DEFAULT_OPTIONS = {
   stream: false, // set true to use streams instead of promises
   expiry: 60 * 60 * 24 * 1, // 1 day, time interval in seconds
-  maxConnection: 10, // max connections per server
+  maxConnections: 10, // max connections per server
   connectionTimeout: 1000, // connection timeout
   timeout: 500, // request timeout
   retries: 2 // request retries

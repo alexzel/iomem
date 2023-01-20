@@ -34,6 +34,8 @@ const iomem = new Memcached()
 
 await iomem.set('test:key', 'hello')
 console.log(await iomem.get('test:key'))
+
+iomem.end()
 ```
 
 ### Multi-get, multi-set, multi-del, etc..
@@ -45,6 +47,8 @@ const iomem = new Memcached()
 await iomem.set(['test:key1', 'test:key2'], ['hello', 'world'])
 console.log(await iomem.get(['test:key1', 'test:key2']))
 await iomem.del(['test:key1', 'test:key2'])
+
+iomem.end()
 ```
 
 ### Custom servers
@@ -53,6 +57,7 @@ await iomem.del(['test:key1', 'test:key2'])
 const Memcached = require('iomem')
 const iomem = new Memcached(['127.0.0.1:11211', '127.0.0.2:11211'])
 ...
+iomem.end()
 ```
 
 Address formats:
@@ -84,6 +89,7 @@ pipeline(iomem.get('test:a'), new Echo({ objectMode: true }), err => {
   if (err) {
     console.log(err)
   }
+  iomem.end()
 })
 ```
 
@@ -93,7 +99,7 @@ pipeline(iomem.get('test:a'), new Echo({ objectMode: true }), err => {
 {
   stream: false, // set true to use streams instead of promises
   expiry: 60 * 60 * 24 * 1, // 1 day, time interval in seconds
-  maxConnection: 10, // max connections per server
+  maxConnections: 10, // max connections per server
   connectionTimeout: 1000, // connection timeout
   timeout: 500, // request timeout
   retries: 2 // request retries

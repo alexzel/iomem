@@ -2,7 +2,6 @@
 
 // Response statuses:
 //   https://github.com/memcached/memcached/wiki/BinaryProtocolRevamped#response-status
-
 const STATUS_MESSAGE_MAP = {
   0x0000: 'No error',
   0x0001: 'Key not found',

@@ -8,10 +8,10 @@ class Server {
   static DEFAULT_PORT = 11211
 
   // Server address formats:
-  //  username:password@host:port
-  //  host:port
-  //  /path/to/memcached.sock
-  constructor (address, maxSockets = 10) {
+  //  - username:password@host:port
+  //  - host:port
+  //  - /path/to/memcached.sock
+  constructor (address, maxSockets = 10, timeout = 1000) {
     // TODO: move maxSockets to options on prev layers and validate it to be >= 1
 
     let [auth, hostname] = address.split('@')
@@ -36,22 +36,49 @@ class Server {
     this._sockets = []
     this._socketIndex = -1
     this._maxSockets = maxSockets
+    this._timeout = timeout * 1000
+  }
+
+  createSocket (index) {
+    const sock = this.ipc
+      ? net.createConnection(this.host)
+      : net.createConnection(this.port, this.host)
+
+    sock.on('error', () => {
+      this.destroySocket(sock.index)
+    })
+    sock.on('timeout', () => {
+      sock.end()
+      this.destroySocket(sock.index)
+    })
+    sock.on('end', () => {
+      this.destroySocket(sock.index)
+    })
+    sock.setTimeout(this._timeout)
+    sock.index = index === undefined
+      ? ++this._socketIndex
+      : index
+    this._sockets.push(sock)
+    return sock
+  }
+
+  destroySocket (index) {
+    this._sockets[index].removeAllListeners()
+    this._sockets[index].destroy()
+    delete this._sockets[index]
   }
 
   getSocket () {
     // create a new socket and return
     if (this._sockets.length < this._maxSockets) {
-      const sock = this.ipc
-        ? net.createConnection(this.host)
-        : net.createConnection(this.port, this.host)
-      // TODO: remove sock on error and decrease this._socketIndex
-      this._socketIndex++
-      this._sockets.push(sock)
-      return sock
+      return this.createSocket()
     }
     // pick the next socket in a ring
     this._socketIndex = (this._socketIndex + 1) % this._maxSockets
-    return this._sockets[this._socketIndex] // TODO: check for existence before return?
+    if (!this._sockets[this._socketIndex]) { // recreate when destroyed
+      this._sockets[this._socketIndex] = this.createSocket(this._socketIndex)
+    }
+    return this._sockets[this._socketIndex]
   }
 
   end () {
