@@ -23,8 +23,8 @@ class NetStream extends Transform {
 
   _transform (data, _, cb) {
     const [method, key, ...args] = data
-    const multikey = Array.isArray(key) // if so we return array, otherwise value or null
-    const multimethod = Array.isArray(method) // if so the method equals to method[Number(key index === n - 1)]
+    const multikey = Array.isArray(key) // if so, we return array, otherwise value or null
+    const multimethod = Array.isArray(method) // if so, the method equals to method[Number(key index === n - 1)]
     const opaque = args[args.length - 1]
     const keysByServer = this.getKeysByServer(multikey ? key : [key])
     const buffer = []
@@ -71,13 +71,12 @@ class NetStream extends Transform {
           const packetSize = header[5] + HEADER_LENGTH
           if (chunks.length >= packetSize) { // check packet size
             const packet = parsePacket(chunks.slice(0, packetSize), header)
-            // TODO: check status
             if (packet && packet[6] === opaque) { // check packet and opaque
               serversHit += Number(packet[2] === lastKey)
               if (packet[5] === STATUS_SUCCESS) { // success
                 buffer.push(packet)
               } else if (packet[5] !== STATUS_NOT_FOUND) { // error
-                error = new Error(STATUS_MESSAGE_MAP[packet[5]] || STATUS_MESSAGE_UNKOWN)
+                error = new Error(`iomem: response error: ${STATUS_MESSAGE_MAP[packet[5]] || STATUS_MESSAGE_UNKOWN}`)
               } else {
                 keysMisses++
               }
@@ -96,12 +95,8 @@ class NetStream extends Transform {
 
       // socket disconnected
       pass.on('end', () => {
-        console.log('>>>>end')
-        done()
-        // console.log('???????end', d, sock.read())
-        // this.push(sock.read())
-        // counter++
-      }) // TODO: check opaque and have timeout
+        done(new Error('iomem: socket ends unexpectedly'))
+      })
 
       // socket error
       pass.on('error', done)
