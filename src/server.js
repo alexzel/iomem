@@ -35,7 +35,6 @@ class Server {
 
     this._sockets = []
     this._socketIndex = -1
-    this._busySockets = 0
     this._maxSockets = maxSockets
   }
 
@@ -43,7 +42,7 @@ class Server {
     // create a new socket and return
     if (this._sockets.length < this._maxSockets) {
       const sock = this.ipc
-        ? net.createConnection(this.host) // TODO: use params instead of two calls
+        ? net.createConnection(this.host)
         : net.createConnection(this.port, this.host)
       // TODO: remove sock on error and decrease this._socketIndex
       this._socketIndex++
@@ -53,6 +52,12 @@ class Server {
     // pick the next socket in a ring
     this._socketIndex = (this._socketIndex + 1) % this._maxSockets
     return this._sockets[this._socketIndex] // TODO: check for existence before return?
+  }
+
+  end () {
+    this._sockets.forEach(sock => sock.end())
+    this._sockets = []
+    this._socketIndex = -1
   }
 }
 

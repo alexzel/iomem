@@ -35,6 +35,10 @@ class Client {
     this._opaque = this._opaque % 0xffffffff
     return this._net.query(...args, this._opaque)
   }
+
+  end () {
+    this._net.end()
+  }
 }
 
 module.exports = Client

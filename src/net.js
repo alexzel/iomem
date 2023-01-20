@@ -113,9 +113,7 @@ class NetStream extends Transform {
 class Net {
   constructor (servers = [DEFAULT_ADDRESS], options = {}) {
     this._options = options
-
     this._servers = new Map()
-    // this._sockets =
 
     servers.forEach(address => {
       const server = new Server(address)
@@ -163,6 +161,10 @@ class Net {
       net.on('end', () => resolve(net.read()))
       net.on('error', reject)
     })
+  }
+
+  end () {
+    this._servers.forEach(server => server.end())
   }
 }
 
