@@ -31,8 +31,7 @@ class Client {
   }
 
   query (...args) {
-    this._opaque++
-    this._opaque = this._opaque % 0xffffffff
+    this._opaque = ++this._opaque % 0xffffffff
     return this._net.query(...args, this._opaque)
   }
 

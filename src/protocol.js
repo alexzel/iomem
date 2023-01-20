@@ -1,6 +1,6 @@
 'use strict'
 
-const { DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS } = require('./packet')
+const { DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_OPAQUE, DEFAULT_STATUS } = require('./packet')
 const OPCODES = require('./opcodes')
 
 // Commands:
@@ -29,10 +29,15 @@ const set = (key, value, expiry = 0, flags = 0, opaque) => {
 const del = (key, opaque) =>
   [OPCODES.delete, key, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, opaque]
 
+// SASL
+const saslauth = (key, value) =>
+  [OPCODES.saslauth, key, value, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_OPAQUE]
+
 module.exports = {
   get,
   getk,
   getkq,
   set,
-  del
+  del,
+  saslauth
 }

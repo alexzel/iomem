@@ -1,6 +1,8 @@
 'use strict'
 
 const net = require('node:net')
+const protocol = require('./protocol')
+const { buildPacket, REQUEST_MAGIC } = require('./packet')
 
 class Server {
   // Static constants
@@ -11,7 +13,7 @@ class Server {
   //  - username:password@host:port
   //  - host:port
   //  - /path/to/memcached.sock
-  constructor (address, maxSockets = 10, timeout = 1000) {
+  constructor (address, maxSockets = 1, timeout = 1000) {
     // TODO: move maxSockets to options on prev layers and validate it to be >= 1
 
     let [auth, hostname] = address.split('@')
@@ -59,6 +61,8 @@ class Server {
       ? ++this._socketIndex
       : index
     this._sockets.push(sock)
+    this.username && this.password &&
+      sock.write(buildPacket(REQUEST_MAGIC, ...protocol.saslauth('PLAIN', `\x00${this.username}\x00${this.password}`)))
     return sock
   }
 
@@ -73,7 +77,7 @@ class Server {
     if (this._sockets.length < this._maxSockets) {
       return this.createSocket()
     }
-    // pick the next socket in a ring
+    // pick the next socket in a sockets ring
     this._socketIndex = (this._socketIndex + 1) % this._maxSockets
     if (!this._sockets[this._socketIndex]) { // recreate when destroyed
       this._sockets[this._socketIndex] = this.createSocket(this._socketIndex)

@@ -13,6 +13,8 @@ const STATUS_MESSAGE_MAP = {
   0x0007: 'The vbucket belongs to another server',
   0x0008: 'Authentication error',
   0x0009: 'Authentication continue',
+  0x0020: 'Authentication required',
+  0x0021: 'Further authentication steps required',
   0x0081: 'Unknown command',
   0x0082: 'Out of memory',
   0x0083: 'Not supported',

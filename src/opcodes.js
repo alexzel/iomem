@@ -17,6 +17,9 @@ module.exports = {
   stat: 0x10,
   setq: 0x11,
   addq: 0x12,
-  sasl_list: 0x20,
-  sasl_auth: 0x21
+  // SASL:
+  //  https://github.com/memcached/memcached/wiki/SASLHowto
+  //  https://github.com/memcached/memcached/wiki/SASLAuthProtocol
+  //  https://en.wikipedia.org/wiki/Simple_Authentication_and_Security_Layer
+  saslauth: 0x21
 }
