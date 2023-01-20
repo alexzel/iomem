@@ -3,10 +3,11 @@
 const { Transform, PassThrough } = require('node:stream')
 
 const HashRing = require('hashring')
-const Server = require('./server')
 
+const Server = require('./server')
 const protocol = require('./protocol')
 const { buildPacket, parsePacket, parseHeader, HEADER_LENGTH, REQUEST_MAGIC, RESPONSE_MAGIC } = require('./packet')
+const { STATUS_MESSAGE_MAP, STATUS_MESSAGE_UNKOWN, STATUS_SUCCESS, STATUS_NOT_FOUND } = require('./statuses')
 
 const HASHRING_ALGORITHM = 'md5'
 const HASHRING_COMPATIBILITY = 'ketama'
@@ -22,16 +23,21 @@ class NetStream extends Transform {
 
   _transform (data, _, cb) {
     const [method, key, ...args] = data
-    const multikey = Array.isArray(key)
+    const multikey = Array.isArray(key) // if so we return array, otherwise value or null
+    const multimethod = Array.isArray(method) // if so the method equals to method[Number(key index === n - 1)]
     const opaque = args[args.length - 1]
     const keysByServer = this.getKeysByServer(multikey ? key : [key])
-
     const buffer = []
+
+    let serversHit = 0
+    let keysMisses = 0
     keysByServer.forEach((keys, server) => {
       // build request packet
       let packet = Buffer.alloc(0)
+      let counter = 0
+      let lastKey
       keys.forEach(key =>
-        (packet = Buffer.concat([packet, buildPacket(REQUEST_MAGIC, ...protocol[method](key, ...args))])))
+        (packet = Buffer.concat([packet, buildPacket(REQUEST_MAGIC, ...protocol[multimethod ? method[Number(keys.size === ++counter && !!(lastKey = key))] : method](key, ...args))])))
 
       // get socket from server
       const sock = server.getSocket()
@@ -56,7 +62,8 @@ class NetStream extends Transform {
       let chunks = Buffer.alloc(0)
       pass.on('data', chunk => {
         chunks = Buffer.concat([chunks, chunk])
-        while (chunks.length >= HEADER_LENGTH) {
+        let error
+        while (chunks.length >= HEADER_LENGTH && !error) {
           const header = parseHeader(chunks.slice(0, HEADER_LENGTH))
           if (header[0] !== RESPONSE_MAGIC) { // wrong magic
             chunks = Buffer.alloc(0)
@@ -66,14 +73,23 @@ class NetStream extends Transform {
             const packet = parsePacket(chunks.slice(0, packetSize), header)
             // TODO: check status
             if (packet && packet[6] === opaque) { // check packet and opaque
-              buffer.push(packet)
+              serversHit += Number(packet[2] === lastKey)
+              if (packet[5] === STATUS_SUCCESS) { // success
+                buffer.push(packet)
+              } else if (packet[5] !== STATUS_NOT_FOUND) { // error
+                error = new Error(STATUS_MESSAGE_MAP[packet[5]] || STATUS_MESSAGE_UNKOWN)
+              } else {
+                keysMisses++
+              }
             }
             chunks = chunks.slice(packetSize)
           } else {
             chunks = Buffer.alloc(0)
           }
         }
-        if (buffer.length >= keysByServer.size) { // this will not work for multi-get with getkq and getk
+        if (error) {
+          done(error)
+        } else if ((multimethod && serversHit === keysByServer.size) || (buffer.length + keysMisses) >= keys.size) {
           done(null, multikey ? buffer : buffer[0])
         }
       })

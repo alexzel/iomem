@@ -23,7 +23,7 @@ class Client {
   }
 
   get (key) {
-    return this.query('get', key)
+    return this.query(Array.isArray(key) ? ['getkq', 'getk'] : 'get', key)
   }
 
   del (key) {
