@@ -157,22 +157,26 @@ class Net {
     }, new Map())
   }
 
-  query (method, key, ...args) {
+  query (args = []) {
     const net = new NetStream({
       getKeysByServer: this.getKeysByServer,
       config: this._options
     })
 
-    if (method && key) {
-      const pass = new PassThrough({ objectMode: true })
+    const methodAndKey = args[0] && args[1]
+
+    let pass
+    if (methodAndKey) {
+      pass = new PassThrough({ objectMode: true })
       pass.pipe(net)
-      pass.end([method, key, ...args])
     }
 
-    if (this._options.stream) {
+    if (this._options.stream || !methodAndKey) {
+      pass && pass.write(args)
       return net
     }
 
+    pass && pass.end(args)
     return new Promise((resolve, reject) => {
       net.on('data', resolve)
       net.on('end', () => resolve(net.read()))

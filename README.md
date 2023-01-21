@@ -76,6 +76,10 @@ or
 
 ### Streams
 
+#### Case #1:
+
+Force `iomem` methods to return a stream instead of a promise by passing `stream: true` flag.
+
 ```js
 const Memcached = require('iomem')
 const iomem = new Memcached(['127.0.0.1:11211'], { stream: true })
@@ -83,13 +87,106 @@ const iomem = new Memcached(['127.0.0.1:11211'], { stream: true })
 const { pipeline, Writable } = require('node:stream')
 
 class Echo extends Writable {
+  constructor (opts) {
+    super({ objectMode: true, ...opts })
+  }
+
   _write (data, _, cb) {
     console.log(data)
     cb()
   }
 }
 
-pipeline(iomem.get('test:a'), new Echo({ objectMode: true }), err => {
+pipeline(iomem.get('test:a'), new Echo(), err => {
+  if (err) {
+    console.log(err)
+  }
+  iomem.end()
+})
+```
+
+#### Case #2:
+
+Omit method arguments to return a stream and supply data with readable stream. Do not care about `stream` flag.
+
+```js
+const Memcached = require('iomem')
+const iomem = new Memcached(['127.0.0.1:11211'])
+
+const { pipeline, Readable, Writable } = require('node:stream')
+
+class Echo extends Writable {
+  constructor (opts) {
+    super({ objectMode: true, ...opts })
+  }
+
+  _write (data, _, cb) {
+    console.log(data)
+    cb()
+  }
+}
+
+pipeline(Readable.from([Client.get('test:a')][Symbol.iterator]()), iomem.get(), new Echo(), err => {
+  if (err) {
+    console.log(err)
+  }
+  iomem.end()
+})
+```
+
+#### Case #3:
+
+The same as case #2 but use special method called `stream` instead of different methods that semantically do not make sense.
+
+**This is recommended approach**
+
+```js
+const Memcached = require('iomem')
+const iomem = new Memcached(['127.0.0.1:11211'])
+
+const { pipeline, Readable, Writable } = require('node:stream')
+
+class Echo extends Writable {
+  constructor (opts) {
+    super({ objectMode: true, ...opts })
+  }
+
+  _write (data, _, cb) {
+    console.log(data)
+    cb()
+  }
+}
+
+pipeline(Readable.from([Client.get('test:a')][Symbol.iterator]()), iomem.stream(), new Echo(), err => {
+  if (err) {
+    console.log(err)
+  }
+  iomem.end()
+})
+```
+
+#### Case #4:
+
+Combine case #1 with readable stream to supply extra data into the stream.
+
+```js
+const Memcached = require('iomem')
+const iomem = new Memcached(['127.0.0.1:11211'], { stream: true })
+
+const { pipeline, Readable, Writable } = require('node:stream')
+
+class Echo extends Writable {
+  constructor (opts) {
+    super({ objectMode: true, ...opts })
+  }
+
+  _write (data, _, cb) {
+    console.log(data)
+    cb()
+  }
+}
+
+pipeline(Readable.from([Client.get('test:a')][Symbol.iterator]()), iomem.get('test:b'), new Echo(), err => {
   if (err) {
     console.log(err)
   }

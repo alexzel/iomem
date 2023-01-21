@@ -20,21 +20,39 @@ class Client {
     this._opaque = 0
   }
 
+  static _opaque = 0
+
+  static opaque () {
+    Client._opaque = ++Client._opaque % 0xffffffff
+    return Client._opaque
+  }
+
+  static set (key, value, expiry) {
+    return ['set', key, value, expiry || this._options.expiry, 0, Client.opaque()]
+  }
+
+  static get (key) {
+    return [Array.isArray(key) ? ['getkq', 'getk'] : 'get', key, Client.opaque()]
+  }
+
+  static del (key) {
+    return ['del', key, Client.opaque()]
+  }
+
   set (key, value, expiry) {
-    return this.query('set', key, value, expiry || this._options.expiry, 0)
+    return this._net.query(Client.set(key, value, expiry))
   }
 
   get (key) {
-    return this.query(Array.isArray(key) ? ['getkq', 'getk'] : 'get', key)
+    return this._net.query(Client.get(key))
   }
 
   del (key) {
-    return this.query('del', key)
+    return this._net.query(Client.del(key))
   }
 
-  query (...args) {
-    this._opaque = ++this._opaque % 0xffffffff
-    return this._net.query(...args, this._opaque)
+  stream () {
+    return this._net.query()
   }
 
   end () {
