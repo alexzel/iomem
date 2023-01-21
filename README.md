@@ -136,9 +136,9 @@ pipeline(Readable.from([Memcached.get('test:a')][Symbol.iterator]()), iomem.get(
 
 #### Case #3:
 
-The same as case #2 but use special method called `stream` instead of different methods that semantically do not make sense.
+The same as case #2 but use special method called `stream` instead of other methods that semantically do not make sense.
 
-**This is recommended approach**
+**This is the recommended approach**
 
 ```js
 const Memcached = require('iomem')
@@ -198,7 +198,7 @@ pipeline(Readable.from([Memcached.get('test:a')][Symbol.iterator]()), iomem.get(
 
 ```js
 {
-  stream: false, // set true to use streams instead of promises
+  stream: false, // set true to force client methods return streams instead of promises
   expiry: 60 * 60 * 24 * 1, // 1 day, time interval in seconds
   maxConnections: 10, // max connections per server
   connectionTimeout: 1000, // connection timeout
@@ -208,3 +208,5 @@ pipeline(Readable.from([Memcached.get('test:a')][Symbol.iterator]()), iomem.get(
   retriesFactor: 2 // request retries - exponential factor
 }
 ```
+
+Please take a look at [Case #3](#case-3) for a better approach before enabling `stream` flag.
