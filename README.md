@@ -201,8 +201,8 @@ pipeline(Readable.from([Memcached.get('test:a')][Symbol.iterator]()), iomem.get(
   stream: false, // set true to force client methods return streams instead of promises
   expiry: 60 * 60 * 24 * 1, // 1 day, time interval in seconds
   maxConnections: 10, // max connections per server
-  connectionTimeout: 1000, // connection timeout
-  timeout: 500, // request timeout
+  connectionTimeout: 1000, // connection timeout in milliseconds
+  timeout: 500, // request timeout in milliseconds
   retries: 2, // request retries - max retries
   retriesDelay: 100, // request retries - initial delay
   retriesFactor: 2 // request retries - exponential factor

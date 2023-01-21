@@ -72,7 +72,7 @@ class Server {
   }
 
   getSocket () {
-    // create a new socket and return
+    // create new socket and return it
     if (this._sockets.length < this._maxSockets) {
       return this.createSocket()
     }
