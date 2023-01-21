@@ -16,12 +16,13 @@ const DEFAULT_ADDRESS = `${Server.DEFAULT_HOSTNAME}:${Server.DEFAULT_PORT}`
 
 class NetStream extends Transform {
   constructor (options = {}) {
-    const { getKeysByServer, ...opts } = options
+    const { getKeysByServer, retries = 2, factor = 2, delay = 100, ...opts } = options
     super({ objectMode: true, ...opts })
     this.getKeysByServer = getKeysByServer
+    this.retry = { retries, factor, delay }
   }
 
-  _transform (data, _, cb) {
+  _try (data, cb) {
     const [method, key, ...args] = data
     const multikey = Array.isArray(key) // if so, we return array, otherwise value or null
     const multimethod = Array.isArray(method) // if so, the method equals to method[Number(key index === n - 1)]
@@ -76,7 +77,7 @@ class NetStream extends Transform {
               if (packet[5] === STATUS_SUCCESS) { // success
                 buffer.push(packet)
               } else if (packet[5] !== STATUS_NOT_FOUND) { // error
-                error = new Error(`iomem: response error: ${STATUS_MESSAGE_MAP[packet[5]] || STATUS_MESSAGE_UNKOWN}`)
+                error = new Error(`iomem: response error: ${STATUS_MESSAGE_MAP[packet[5]] || `${STATUS_MESSAGE_UNKOWN} (${packet[5]})`}`)
               } else {
                 keysMisses++
               }
@@ -107,6 +108,21 @@ class NetStream extends Transform {
     if (!keysByServer.size) {
       cb()
     }
+  }
+
+  _transform (data, _, cb) {
+    const retry = (retries, ms) => {
+      this._try(data, (err, data) => {
+        if (err && retries > 0) {
+          setTimeout(() => {
+            retry(retries - 1, ms * this.retry.factor)
+          }, ms)
+        } else {
+          cb(err, data)
+        }
+      })
+    }
+    retry(this.retry.retries, this.retry.delay)
   }
 }
 

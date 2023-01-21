@@ -77,7 +77,7 @@ class Server {
     if (this._sockets.length < this._maxSockets) {
       return this.createSocket()
     }
-    // pick the next socket in a sockets ring
+    // pick the next socket in the sockets ring
     this._socketIndex = (this._socketIndex + 1) % this._maxSockets
     if (!this._sockets[this._socketIndex]) { // recreate when destroyed
       this._sockets[this._socketIndex] = this.createSocket(this._socketIndex)
