@@ -126,7 +126,7 @@ class Echo extends Writable {
   }
 }
 
-pipeline(Readable.from([Client.get('test:a')][Symbol.iterator]()), iomem.get(), new Echo(), err => {
+pipeline(Readable.from([Memcached.get('test:a')][Symbol.iterator]()), iomem.get(), new Echo(), err => {
   if (err) {
     console.log(err)
   }
@@ -157,7 +157,7 @@ class Echo extends Writable {
   }
 }
 
-pipeline(Readable.from([Client.get('test:a')][Symbol.iterator]()), iomem.stream(), new Echo(), err => {
+pipeline(Readable.from([Memcached.get('test:a')][Symbol.iterator]()), iomem.stream(), new Echo(), err => {
   if (err) {
     console.log(err)
   }
@@ -186,7 +186,7 @@ class Echo extends Writable {
   }
 }
 
-pipeline(Readable.from([Client.get('test:a')][Symbol.iterator]()), iomem.get('test:b'), new Echo(), err => {
+pipeline(Readable.from([Memcached.get('test:a')][Symbol.iterator]()), iomem.get('test:b'), new Echo(), err => {
   if (err) {
     console.log(err)
   }
