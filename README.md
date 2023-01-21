@@ -29,35 +29,39 @@ npm install iomem
 ### Default
 
 ```js
-const Memcached = require('iomem')
-const iomem = new Memcached()
+const Mem = require('iomem')
+const iomem = new Mem()
 
 await iomem.set('test:key', 'hello')
-console.log(await iomem.get('test:key'))
+const value = await iomem.get('test:key')
 
-iomem.end()
+console.log(value)
+
+iomem.end() // call end() when your script or web server exits
 ```
 
 ### Multi-get, multi-set, multi-del, etc..
 
 ```js
-const Memcached = require('iomem')
-const iomem = new Memcached()
+const Mem = require('iomem')
+const iomem = new Mem()
 
 await iomem.set(['test:key1', 'test:key2'], ['hello', 'world'])
-console.log(await iomem.get(['test:key1', 'test:key2']))
+const values = await iomem.get(['test:key1', 'test:key2'])
 await iomem.del(['test:key1', 'test:key2'])
 
-iomem.end()
+console.log(values)
+
+iomem.end() // call end() when your script or web server exits
 ```
 
 ### Custom servers
 
 ```js
-const Memcached = require('iomem')
-const iomem = new Memcached(['127.0.0.1:11211', '127.0.0.2:11211'])
+const Mem = require('iomem')
+const iomem = new Mem(['127.0.0.1:11211', '127.0.0.2:11211'])
 ...
-iomem.end()
+iomem.end() // call end() when your script or web server exits
 ```
 
 Supported address formats:
@@ -81,8 +85,8 @@ or
 Force `iomem` methods to return a stream instead of a promise by passing `stream: true` flag.
 
 ```js
-const Memcached = require('iomem')
-const iomem = new Memcached(['127.0.0.1:11211'], { stream: true })
+const Mem = require('iomem')
+const iomem = new Mem(['127.0.0.1:11211'], { stream: true })
 
 const { pipeline, Writable } = require('node:stream')
 
@@ -99,10 +103,13 @@ class Echo extends Writable {
 
 pipeline(iomem.get('test:a'), new Echo(), err => {
   if (err) {
-    console.log(err)
+    console.error(err)
   }
-  iomem.end()
 })
+
+...
+
+iomem.end() // call end() when your script or web server exits
 ```
 
 #### Case #2:
@@ -110,8 +117,8 @@ pipeline(iomem.get('test:a'), new Echo(), err => {
 Omit method arguments to return a stream and supply data with readable stream. Do not care about `stream` flag.
 
 ```js
-const Memcached = require('iomem')
-const iomem = new Memcached(['127.0.0.1:11211'])
+const Mem = require('iomem')
+const iomem = new Mem(['127.0.0.1:11211'])
 
 const { pipeline, Readable, Writable } = require('node:stream')
 
@@ -126,12 +133,15 @@ class Echo extends Writable {
   }
 }
 
-pipeline(Readable.from([Memcached.get('test:a')][Symbol.iterator]()), iomem.get(), new Echo(), err => {
+pipeline(Readable.from([Mem.get('test:a')][Symbol.iterator]()), iomem.get(), new Echo(), err => {
   if (err) {
-    console.log(err)
+    console.error(err)
   }
-  iomem.end()
 })
+
+...
+
+iomem.end() // call end() when your script or web server exits
 ```
 
 #### Case #3:
@@ -141,8 +151,8 @@ The same as case #2 but use special method called `stream` instead of other meth
 **This is the recommended approach**
 
 ```js
-const Memcached = require('iomem')
-const iomem = new Memcached(['127.0.0.1:11211'])
+const Mem = require('iomem')
+const iomem = new Mem(['127.0.0.1:11211'])
 
 const { pipeline, Readable, Writable } = require('node:stream')
 
@@ -157,12 +167,15 @@ class Echo extends Writable {
   }
 }
 
-pipeline(Readable.from([Memcached.get('test:a')][Symbol.iterator]()), iomem.stream(), new Echo(), err => {
+pipeline(Readable.from([Mem.get('test:a')][Symbol.iterator]()), iomem.stream(), new Echo(), err => {
   if (err) {
-    console.log(err)
+    console.error(err)
   }
-  iomem.end()
 })
+
+...
+
+iomem.end() // call end() when your script or web server exits
 ```
 
 #### Case #4:
@@ -170,8 +183,8 @@ pipeline(Readable.from([Memcached.get('test:a')][Symbol.iterator]()), iomem.stre
 Combine case #1 with readable stream to supply extra data into the stream.
 
 ```js
-const Memcached = require('iomem')
-const iomem = new Memcached(['127.0.0.1:11211'], { stream: true })
+const Mem = require('iomem')
+const iomem = new Mem(['127.0.0.1:11211'], { stream: true })
 
 const { pipeline, Readable, Writable } = require('node:stream')
 
@@ -186,12 +199,15 @@ class Echo extends Writable {
   }
 }
 
-pipeline(Readable.from([Memcached.get('test:a')][Symbol.iterator]()), iomem.get('test:b'), new Echo(), err => {
+pipeline(Readable.from([Mem.get('test:a')][Symbol.iterator]()), iomem.get('test:b'), new Echo(), err => {
   if (err) {
-    console.log(err)
+    console.error(err)
   }
-  iomem.end()
 })
+
+...
+
+iomem.end() // call end() when your script or web server exits
 ```
 
 ## Options
