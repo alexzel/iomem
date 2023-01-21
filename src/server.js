@@ -67,9 +67,11 @@ class Server {
   }
 
   destroySocket (index) {
-    this._sockets[index].removeAllListeners()
-    this._sockets[index].destroy()
-    delete this._sockets[index]
+    if (this._sockets[index]) {
+      this._sockets[index].removeAllListeners()
+      this._sockets[index].destroy()
+      delete this._sockets[index]
+    }
   }
 
   getSocket () {
