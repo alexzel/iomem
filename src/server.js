@@ -10,12 +10,9 @@ class Server {
   static DEFAULT_PORT = 11211
 
   // Server address formats:
-  //  - username:password@host:port
-  //  - host:port
+  //  - [username:password@]host[:port]
   //  - /path/to/memcached.sock
   constructor (address, maxSockets, timeout) {
-    // TODO: move maxSockets to options on prev layers and validate it to be >= 1
-
     let [auth, hostname] = address.split('@')
     if (!hostname) {
       hostname = auth || Server.DEFAULT_HOSTNAME

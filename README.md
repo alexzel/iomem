@@ -60,12 +60,16 @@ const iomem = new Memcached(['127.0.0.1:11211', '127.0.0.2:11211'])
 iomem.end()
 ```
 
-Address formats:
+Supported address formats:
 
 ```js
+// host
+or
 // host:port
 or
 // username:password@host:port
+or
+// username:password@host
 or
 // /path/to/memcached.sock
 ```
