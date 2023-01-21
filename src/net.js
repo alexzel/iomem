@@ -16,10 +16,10 @@ const DEFAULT_ADDRESS = `${Server.DEFAULT_HOSTNAME}:${Server.DEFAULT_PORT}`
 
 class NetStream extends Transform {
   constructor (options = {}) {
-    const { getKeysByServer, retries = 2, factor = 2, delay = 100, ...opts } = options
+    const { getKeysByServer, config = {}, ...opts } = options
     super({ objectMode: true, ...opts })
     this.getKeysByServer = getKeysByServer
-    this.retry = { retries, factor, delay }
+    this.config = config
   }
 
   _try (data, cb) {
@@ -50,8 +50,8 @@ class NetStream extends Transform {
 
       const timeout = setTimeout(() => {
         sock.unpipe(pass)
-        cb(new Error(`iomem: request timeout (${1000})`))
-      }, (sock.readyState === 'opening' || sock.readyState === 'closed' ? 1000 : 0) + 500)
+        cb(new Error(`iomem: request timeout (${this.config.timeout})`))
+      }, sock.readyState === 'opening' || sock.readyState === 'closed' ? this.config.connectionTimeout : this.config.timeout)
 
       const done = (err, data) => {
         clearTimeout(timeout)
@@ -115,14 +115,14 @@ class NetStream extends Transform {
       this._try(data, (err, data) => {
         if (err && retries > 0) {
           setTimeout(() => {
-            retry(retries - 1, ms * this.retry.factor)
+            retry(retries - 1, ms * this.config.retriesFactor)
           }, ms)
         } else {
           cb(err, data)
         }
       })
     }
-    retry(this.retry.retries, this.retry.delay)
+    retry(this.config.retries, this.config.retriesDelay)
   }
 }
 
@@ -132,8 +132,8 @@ class Net {
     this._servers = new Map()
 
     servers.forEach(address => {
-      const server = new Server(address)
-      this._servers.set(server.hostname, new Server(address))
+      const server = new Server(address, this._options.maxConnections, this._options.connectionTimeout)
+      this._servers.set(server.hostname, server)
     })
 
     this._ring = new HashRing([...this._servers.keys()], HASHRING_ALGORITHM, {
@@ -159,7 +159,8 @@ class Net {
 
   query (method, key, ...args) {
     const net = new NetStream({
-      getKeysByServer: this.getKeysByServer
+      getKeysByServer: this.getKeysByServer,
+      config: this._options
     })
 
     if (method && key) {

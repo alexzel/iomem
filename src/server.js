@@ -13,7 +13,7 @@ class Server {
   //  - username:password@host:port
   //  - host:port
   //  - /path/to/memcached.sock
-  constructor (address, maxSockets = 1, timeout = 1000) {
+  constructor (address, maxSockets, timeout) {
     // TODO: move maxSockets to options on prev layers and validate it to be >= 1
 
     let [auth, hostname] = address.split('@')

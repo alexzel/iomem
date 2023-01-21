@@ -102,6 +102,8 @@ pipeline(iomem.get('test:a'), new Echo({ objectMode: true }), err => {
   maxConnections: 10, // max connections per server
   connectionTimeout: 1000, // connection timeout
   timeout: 500, // request timeout
-  retries: 2 // request retries
+  retries: 2, // request retries - max retries
+  retriesDelay: 100, // request retries - initial delay
+  retriesFactor: 2 // request retries - exponential factor
 }
 ```
