@@ -51,7 +51,7 @@ class NetStream extends Transform {
       const timeout = setTimeout(() => {
         sock.unpipe(pass)
         cb(new Error(`iomem: request timeout (${this.config.timeout})`))
-      }, sock.readyState === 'opening' || sock.readyState === 'closed' ? this.config.connectionTimeout : this.config.timeout)
+      }, this.config.timeout) // maybe use connectionTimeout when sock.readyState === 'opening' || sock.readyState === 'closed'?
 
       const done = (err, data) => {
         clearTimeout(timeout)
@@ -96,7 +96,7 @@ class NetStream extends Transform {
 
       // socket end
       pass.on('end', () => {
-        done(new Error('iomem: socket ends unexpectedly'))
+        done(new Error('iomem: socket closed unexpectedly'))
       })
 
       // socket error

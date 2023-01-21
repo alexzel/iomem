@@ -35,7 +35,7 @@ class Server {
     this._sockets = []
     this._socketIndex = -1
     this._maxSockets = maxSockets
-    this._timeout = timeout * 1000
+    this._timeout = timeout
   }
 
   createSocket (index) {
