@@ -72,10 +72,10 @@ class NetStream extends Transform {
           const packetSize = header[5] + HEADER_LENGTH
           if (chunks.length >= packetSize) { // check packet size
             const packet = parsePacket(chunks.slice(0, packetSize), header)
-            if (packet && packet[6] === opaque) { // check packet and opaque
+            if (packet && packet[packet.length - 1] === opaque) { // check packet and opaque
               serversHit += Number(packet[2] === lastKey)
               if (packet[5] === STATUS_SUCCESS) { // success
-                buffer.push(packet)
+                buffer.push(protocol[method].format ? protocol[method].format(packet) : null)
               } else if (packet[5] !== STATUS_NOT_FOUND) { // error
                 error = new Error(`iomem: response error: ${STATUS_MESSAGE_MAP[packet[5]] || `${STATUS_MESSAGE_UNKOWN} (${packet[5]})`}`)
               } else {
@@ -163,15 +163,13 @@ class Net {
       config: this._options
     })
 
-    const methodAndKey = args[0] && args[1]
-
     let pass
-    if (methodAndKey) {
+    if (args[0]) { // TODO: now it checks only for method... this will not create a stream for get() and how to deal with flush, stat, etc.. remove Case #2?
       pass = new PassThrough({ objectMode: true })
       pass.pipe(net)
     }
 
-    if (this._options.stream || !methodAndKey) {
+    if (this._options.stream || !args[0]) {
       pass && pass.write(args)
       return net
     }

@@ -59,7 +59,7 @@ class Server {
       : index
     this._sockets.push(sock)
     this.username && this.password &&
-      sock.write(buildPacket(REQUEST_MAGIC, ...protocol.saslauth('PLAIN', `\x00${this.username}\x00${this.password}`)))
+      sock.write(buildPacket(REQUEST_MAGIC, ...protocol.saslauth('PLAIN', Buffer.from(`\x00${this.username}\x00${this.password}`))))
     return sock
   }
 
