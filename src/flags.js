@@ -9,7 +9,7 @@ const FLAGS = {
   // Function, Symbol, and undefined are not stringifiable.
   string: 1 << 0, // we keep it here to not have "" wrappers by JSON.stringify
   bigint: 1 << 1, // we keep it here b/c JSON.stringify does not support BigInt
-  object: 1 << 2, // this is the JSON.stringify product, the default method when no flags specified
+  object: 1 << 2, // this is the JSON.stringify product, the default serialization method
 
   // Instances
   Buffer: 1 << 3, // buffers are handled as they are
