@@ -2,24 +2,68 @@
 
 // Opcodes:
 //   https://github.com/memcached/memcached/wiki/BinaryProtocolRevamped#command-opcodes
-module.exports = {
+const OPCODES = {
+  // Opcodes having a quiet version
   get: 0x00,
+  getk: 0x0c,
   set: 0x01,
   add: 0x02,
   replace: 0x03,
   delete: 0x04,
   increment: 0x05,
   decrement: 0x06,
+  quit: 0x07,
   flush: 0x08,
-  noop: 0x0a,
-  getk: 0x0c,
+  append: 0x0e,
+  prepend: 0x0f,
+  gat: 0x1d,
+
+  // Quiet version on the above opcodes
+  getq: 0x09,
   getkq: 0x0d,
-  stat: 0x10,
   setq: 0x11,
   addq: 0x12,
+  replaceq: 0x13,
+  deleteq: 0x14,
+  incrementq: 0x15,
+  decrementq: 0x16,
+  quitq: 0x17,
+  flushq: 0x18,
+  appendq: 0x19,
+  prependq: 0x1a,
+  gatq: 0x1e,
+
+  // Opcondes not having quiet equivalent
+  stat: 0x10,
+  noop: 0x0a,
+  version: 0x0b,
+  touch: 0x1c,
+
   // SASL:
   //  https://github.com/memcached/memcached/wiki/SASLHowto
   //  https://github.com/memcached/memcached/wiki/SASLAuthProtocol
   //  https://en.wikipedia.org/wiki/Simple_Authentication_and_Security_Layer
   saslauth: 0x21
+}
+
+// Opcodes set having a quiet version
+const QUIET_SET = new Set([
+  OPCODES.get,
+  OPCODES.getk,
+  OPCODES.set,
+  OPCODES.add,
+  OPCODES.replace,
+  OPCODES.delete,
+  OPCODES.increment,
+  OPCODES.decrement,
+  OPCODES.quit,
+  OPCODES.flush,
+  OPCODES.append,
+  OPCODES.prepend,
+  OPCODES.gat
+])
+
+module.exports = {
+  OPCODES,
+  hasQuietVersion: opcode => QUIET_SET.has(opcode)
 }
