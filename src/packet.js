@@ -5,10 +5,11 @@ const HEADER_LENGTH = 24
 const REQUEST_MAGIC = 0x80
 const RESPONSE_MAGIC = 0x81
 
-const DEFAULT_VALUE = ''
+const DEFAULT_KEY = ''
+const DEFAULT_VALUE = Buffer.alloc(0)
 const DEFAULT_EXTRAS = Buffer.alloc(0)
 const DEFAULT_OPAQUE = 0x00
-const DEFAULT_CAS = 0x00
+const DEFAULT_CAS = BigInt(0x00)
 const DEFAULT_DATA_TYPE = 0x00 // Reserved for future use https://github.com/memcached/memcached/wiki/BinaryProtocolRevamped#data-types
 const DEFAULT_STATUS = 0x00
 
@@ -39,7 +40,7 @@ const DEFAULT_STATUS = 0x00
 //   +---------------+---------------+---------------+---------------+
 //   Total 24 bytes
 
-const buildHeader = (magic, opcode, keyLength, valueLength, extrasLength, status, opaque, cas) => {
+const buildHeader = (magic, opcode, keyLength, valueLength, extrasLength, status, cas, opaque) => {
   const header = Buffer.alloc(24)
 
   // 0
@@ -59,21 +60,21 @@ const buildHeader = (magic, opcode, keyLength, valueLength, extrasLength, status
   header.writeUInt32BE(opaque, 12)
 
   // 16
-  header.writeUInt32BE(cas, 16)
+  header.writeBigInt64BE(cas, 16)
 
   return header
 }
 
 const parseHeader = header =>
   [
-    header.readUInt8(0),     // magic
-    header.readUInt8(1),     // opcode
-    header.readUInt16BE(2),  // key length
-    header.readUInt8(4),     // extras length
-    header.readUInt16BE(6),  // status
-    header.readUInt32BE(8),  // total body length
-    header.readUInt32BE(12), // opaque
-    header.readUInt32BE(16)  // cas
+    header.readUInt8(0),        // magic
+    header.readUInt8(1),        // opcode
+    header.readUInt16BE(2),     // key length
+    header.readUInt8(4),        // extras length
+    header.readUInt16BE(6),     // status
+    header.readUInt32BE(8),     // total body length
+    header.readBigUint64BE(16), // cas
+    header.readUInt32BE(12)     // opaque
   ]
 
 // Packet:
@@ -100,13 +101,11 @@ const parseHeader = header =>
 //   +---------------+---------------+---------------+---------------+
 //   Total 24 bytes
 
-const buildPacket = (magic, opcode, key, value = DEFAULT_VALUE, extras = DEFAULT_EXTRAS, status = DEFAULT_STATUS, opaque = DEFAULT_OPAQUE, cas = DEFAULT_CAS) => {
+const buildPacket = (magic, opcode, key = DEFAULT_KEY, value = DEFAULT_VALUE, extras = DEFAULT_EXTRAS, status = DEFAULT_STATUS, cas = DEFAULT_CAS, opaque = DEFAULT_OPAQUE) => {
   key = Buffer.from(key)
-  value = Buffer.from(value)
-
   return Buffer.concat([
     // 0
-    buildHeader(magic, opcode, key.length, value.length, extras.length, status, opaque, cas),
+    buildHeader(magic, opcode, key.length, value.length, extras.length, status, cas, opaque),
     // 24
     extras, key, value
   ])
@@ -117,7 +116,7 @@ const parsePacket = (packet, header = null) => {
     return null
   }
 
-  const [magic, opcode, keyLength, extrasLength, status, totalBodyLength, opaque, cas] =
+  const [magic, opcode, keyLength, extrasLength, status, totalBodyLength, cas, opaque] =
     header || parseHeader(packet.slice(0, HEADER_LENGTH))
 
   if (magic !== REQUEST_MAGIC && magic !== RESPONSE_MAGIC) {
@@ -140,11 +139,11 @@ const parsePacket = (packet, header = null) => {
     magic,  // magic
     opcode, // opcode
     packet.slice(keyOffset, valueOffset).toString('utf8'), // key
-    packet.slice(valueOffset, valueOffset + valueLength).toString('utf8'), // value
+    packet.slice(valueOffset, valueOffset + valueLength), // value
     packet.slice(HEADER_LENGTH, keyOffset), // extras
     status, // status or vbucket id
-    opaque, // opaque
-    cas     // cas
+    cas,    // cas
+    opaque  // opaque
   ]
 }
 
@@ -156,6 +155,7 @@ module.exports = {
   HEADER_LENGTH,
   REQUEST_MAGIC,
   RESPONSE_MAGIC,
+  DEFAULT_KEY,
   DEFAULT_VALUE,
   DEFAULT_EXTRAS,
   DEFAULT_OPAQUE,
