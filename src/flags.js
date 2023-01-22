@@ -1,31 +1,23 @@
 'use strict'
 
-// Flags:
-//   https://github.com/memcached/memcached/blob/master/memcached.h#L546
+// The flags are client specific.
+// We use them to encode/decode stored values by type.
+/* eslint-disable key-spacing */
 const FLAGS = {
-  ITEM_LINKED: 1,
-  ITEM_CAS: 2,
-  /* temp */
-  ITEM_SLABBED: 4,
-  /* Item was fetched at least once in its lifetime */
-  ITEM_FETCHED: 8,
-  /* Appended on fetch, removed on LRU shuffling */
-  ITEM_ACTIVE: 16,
-  /* If an item's storage are chained chunks. */
-  ITEM_CHUNKED: 32,
-  ITEM_CHUNK: 64,
-  /* ITEM_data bulk is external to item */
-  ITEM_HDR: 128,
-  /* additional 4 bytes for item client flags */
-  ITEM_CFLAGS: 256,
-  /* item has sent out a token already */
-  ITEM_TOKEN_SENT: 512,
-  /* reserved, in case tokens should be a 2-bit count in future */
-  ITEM_TOKEN_RESERVED: 1024,
-  /* if item has been marked as a stale value */
-  ITEM_STALE: 2048,
-  /* if item key was sent in binary */
-  ITEM_KEY_BINARY: 4096
+  // Types
+  // We don't care about number, boolean, null. They will be handled as object type by JSON.stringify
+  // Function, Symbol, and undefined are not stringifiable.
+  string: 1 << 0, // we keep it here to not have "" wrappers by JSON.stringify
+  bigint: 1 << 1, // we keep it here b/c JSON.stringify does not support BigInt
+  object: 1 << 2, // this is the JSON.stringify product, the default method when no flags specified
+
+  // Instances
+  Buffer: 1 << 3, // buffers are handled as they are
+  Date:   1 << 4, // date is a common type that we want to handle
+  String: 1 << 5, // string object must remain a string object
+
+  // Compression flag
+  compressed: 0b10000000000000000000000000000000
 }
 
 module.exports = FLAGS
