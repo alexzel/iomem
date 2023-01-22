@@ -18,7 +18,7 @@ const OPCODES = {
   prepend: 0x0f,
   gat: 0x1d,
 
-  // Quiet version on the above opcodes
+  // Quiet version of the above opcodes
   getq: 0x09,
   getkq: 0x0d,
   setq: 0x11,
@@ -33,7 +33,7 @@ const OPCODES = {
   prependq: 0x1a,
   gatq: 0x1e,
 
-  // Opcondes not having quiet equivalent
+  // Opcodes not having a quiet equivalent
   stat: 0x10,
   noop: 0x0a,
   version: 0x0b,
@@ -46,7 +46,7 @@ const OPCODES = {
   saslauth: 0x21
 }
 
-// Opcodes set having a quiet version
+// Opcodes Set having a quiet version
 const QUIET_SET = new Set([
   OPCODES.get,
   OPCODES.getk,
