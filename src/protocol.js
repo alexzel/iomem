@@ -35,15 +35,12 @@ const expiring = (opcode, key, expiry, opaque = DEFAULT_OPAQUE) => {
   return [opcode, key, DEFAULT_VALUE, extras, DEFAULT_STATUS, DEFAULT_CAS, opaque]
 }
 
-// creates protocol method function with and extends it with format(), result(), and bykeys flag
+// creates protocol method function and extend it with format(), result(), and bykeys flag
 const createMethod = (method, format, result, bykeys = false) => {
-  const protocolMethod = function (...args) {
-    return method.apply(null, args)
-  }
-  protocolMethod.format = format
-  protocolMethod.result = result
-  protocolMethod.bykeys = bykeys
-  return protocolMethod
+  method.format = format
+  method.result = result
+  method.bykeys = bykeys
+  return method
 }
 
 // get or multi get with value or [value, ...] response
