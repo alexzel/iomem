@@ -2,7 +2,6 @@
 
 const { DEFAULT_KEY, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, DEFAULT_OPAQUE } = require('./packet')
 const { OPCODES } = require('./opcodes')
-const { STATUS_SUCCESS } = require('./statuses')
 const { serialize, deserialize } = require('./serializer')
 
 // Commands:
@@ -36,60 +35,72 @@ const expiring = (opcode, key, expiry, opaque = DEFAULT_OPAQUE) => {
   return [opcode, key, DEFAULT_VALUE, extras, DEFAULT_STATUS, DEFAULT_CAS, opaque]
 }
 
-// get or multi get with value or [value, ...] response
-const get = function (key, opaque) {
-  return [OPCODES.get, key, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque]
+// creates protocol method function with and extends it with format(), result(), and bykeys flag
+const createMethod = (method, format, result, bykeys = false) => {
+  const protocolMethod = function (...args) {
+    return method.apply(null, args)
+  }
+  protocolMethod.format = format
+  protocolMethod.result = result
+  protocolMethod.bykeys = bykeys
+  return protocolMethod
 }
-get.format = packet =>
-  packet[3].length ? deserialize(packet[3], packet[4].readUInt32BE(0)) : null
+
+// get or multi get with value or [value, ...] response
+const get = createMethod(
+  (key, opaque) => [OPCODES.get, key, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque],
+  (packet, buffer) => buffer.push(deserialize(packet[3], packet[4].readUInt32BE(0))),
+  (keyFlags, buffer) => keyFlags.isArray ? buffer : (buffer[0] || null)
+)
 
 // get or multi get with { key: value } or { key: value, ... } response
-const getk = function (key, opaque) {
-  return [OPCODES.getk, key, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque]
-}
-// TODO: accept buffer that we can extend when it's an object and somehow let it know to be object by default or maybe null and formatter handles it
-getk.format = packet =>
-  packet[3].length ? { [packet[2]]: deserialize(packet[3], packet[4].readUInt32BE(0)) } : null
+const getk = createMethod(
+  (key, opaque) => [OPCODES.getk, key, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque],
+  (packet, buffer) => (buffer[packet[2]] = deserialize(packet[3], packet[4].readUInt32BE(0))),
+  (keyFlags, buffer, keysStat) => keyFlags.isArray ? buffer : keysStat.misses ? null : buffer,
+  true
+)
 
 // get or multi get with { key: cas } or { key: cas, ... } response
-const gets = (key, opaque) =>
-  [OPCODES.getk, key, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque]
-gets.format = packet =>
-  packet[3].length ? { [packet[2]]: packet[6] } : null
+const gets = createMethod(
+  (key, opaque) => [OPCODES.getk, key, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque],
+  (packet, buffer) => (buffer[packet[2]] = packet[6]),
+  (keyFlags, buffer, keysStat) => keyFlags.isArray ? buffer : keysStat.misses ? null : buffer,
+  true
+)
 
 // get or multi get with { key: { value, cas } } or { key: { value, cas }, ... } response
-const getsv = (key, opaque) =>
-  [OPCODES.getk, key, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque]
-getsv.format = packet =>
-  packet[3].length ? { [packet[2]]: { value: deserialize(packet[3], packet[4].readUInt32BE(0)), cas: packet[6] } } : null
+const getsv = createMethod(
+  (key, opaque) => [OPCODES.getk, key, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque],
+  (packet, buffer) => (buffer[packet[2]] = { value: deserialize(packet[3], packet[4].readUInt32BE(0)), cas: packet[6] }),
+  (keyFlags, buffer, keysStat) => keyFlags.isArray ? buffer : keysStat.misses ? null : buffer,
+  true
+)
 
 // set or multi set with key, value or [key, ...], [value, ...] pairs
-const set = function (key, value, expiry, opaque) {
-  return mutation(OPCODES.set, key, value, expiry, DEFAULT_CAS, opaque)
-}
-set.format = packet =>
-  packet[5] === STATUS_SUCCESS
+const set = createMethod(
+  (key, value, expiry, opaque) => mutation(OPCODES.set, key, value, expiry, DEFAULT_CAS, opaque),
+  null,
+  () => true
+)
 
-// set or multi set with { key: value } or { key: value, ...} objects
-const setk = (key, expiry, opaque) =>
-  mutation(OPCODES.set, key, DEFAULT_VALUE, expiry, DEFAULT_CAS, opaque)
-setk.format = packet =>
-  packet[5] === STATUS_SUCCESS
+const add = createMethod(
+  (key, value, expiry, opaque) => mutation(OPCODES.add, key, value, expiry, DEFAULT_CAS, opaque),
+  null,
+  (keyFlags, buffer, keysStat) => !keysStat.misses && !keysStat.exists
+)
 
-const add = (key, value, expiry, opaque) =>
-  mutation(OPCODES.add, key, value, expiry, expiry, DEFAULT_CAS, opaque)
-add.format = packet =>
-  packet[5] === STATUS_SUCCESS
+const replace = createMethod(
+  (key, value, expiry, opaque) => mutation(OPCODES.replace, key, value, expiry, DEFAULT_CAS, opaque),
+  null,
+  (keyFlags, buffer, keysStat) => !keysStat.misses && !keysStat.exists
+)
 
-const replace = (key, value, expiry, opaque) =>
-  mutation(OPCODES.replace, key, value, expiry, DEFAULT_CAS, opaque)
-replace.format = packet =>
-  packet[5] === STATUS_SUCCESS
-
-const cas = (key, value, expiry, cas, opaque) =>
-  mutation(OPCODES.set, key, value, expiry, cas, opaque)
-cas.format = packet =>
-  packet[5] === STATUS_SUCCESS
+const cas = createMethod(
+  (key, value, expiry, cas, opaque) => mutation(OPCODES.set, key, value, expiry, cas, opaque),
+  null,
+  (keyFlags, buffer, keysStat) => !keysStat.misses && !keysStat.exists
+)
 
 const del = (key, opaque) =>
   [OPCODES.delete, key, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque]
@@ -136,7 +147,6 @@ module.exports = {
   gets,
   getsv,
   set,
-  setk,
   add,
   replace,
   cas,

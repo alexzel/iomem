@@ -46,24 +46,26 @@ const OPCODES = {
   saslauth: 0x21
 }
 
-// Opcodes Set having a quiet version
-const QUIET_SET = new Set([
-  OPCODES.get,
-  OPCODES.getk,
-  OPCODES.set,
-  OPCODES.add,
-  OPCODES.replace,
-  OPCODES.delete,
-  OPCODES.increment,
-  OPCODES.decrement,
-  OPCODES.quit,
-  OPCODES.flush,
-  OPCODES.append,
-  OPCODES.prepend,
-  OPCODES.gat
+// Opcodes to quiet version opcodes map
+/* eslint-disable no-multi-spaces */
+const OPCODES_QUIET_MAP = new Map([
+  [OPCODES.get,       OPCODES.getq],
+  [OPCODES.getk,      OPCODES.getkq],
+  [OPCODES.set,       OPCODES.setq],
+  [OPCODES.add,       OPCODES.addq],
+  [OPCODES.replace,   OPCODES.replaceq],
+  [OPCODES.delete,    OPCODES.deleteq],
+  [OPCODES.increment, OPCODES.incrementq],
+  [OPCODES.decrement, OPCODES.decrementq],
+  [OPCODES.quit,      OPCODES.quitq],
+  [OPCODES.flush,     OPCODES.flushq],
+  [OPCODES.append,    OPCODES.appendq],
+  [OPCODES.prepend,   OPCODES.prependq],
+  [OPCODES.gat,       OPCODES.gatq]
 ])
 
 module.exports = {
   OPCODES,
-  hasQuietVersion: opcode => QUIET_SET.has(opcode)
+  getQuietOpcode: opcode => OPCODES_QUIET_MAP.get(opcode),
+  getQuietOpcodeByName: name => OPCODES_QUIET_MAP.get(OPCODES[name])
 }

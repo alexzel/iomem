@@ -6,8 +6,10 @@ const HashRing = require('hashring')
 
 const Server = require('./server')
 const protocol = require('./protocol')
+const { getQuietOpcodeByName } = require('./opcodes')
 const { buildPacket, parsePacket, parseHeader, HEADER_LENGTH, REQUEST_MAGIC, RESPONSE_MAGIC } = require('./packet')
-const { STATUS_MESSAGE_MAP, STATUS_MESSAGE_UNKOWN, STATUS_SUCCESS, STATUS_NOT_FOUND } = require('./statuses')
+const { STATUS_MESSAGE_MAP, STATUS_MESSAGE_UNKOWN, STATUS_SUCCESS, STATUS_NOT_FOUND, STATUS_EXISTS } = require('./statuses')
+const { getKeyFlags } = require('./keys')
 
 const HASHRING_ALGORITHM = 'md5'
 const HASHRING_COMPATIBILITY = 'ketama'
@@ -16,29 +18,47 @@ const DEFAULT_ADDRESS = `${Server.DEFAULT_HOSTNAME}:${Server.DEFAULT_PORT}`
 
 class NetStream extends Transform {
   constructor (options = {}) {
-    const { getKeysByServer, config = {}, ...opts } = options
+    const { getKeysSetByServer, getKeysMapByServer, getKeysSetByAllServers, config = {}, ...opts } = options
     super({ objectMode: true, ...opts })
-    this.getKeysByServer = getKeysByServer
+    this.getKeysSetByServer = getKeysSetByServer
+    this.getKeysMapByServer = getKeysMapByServer
+    this.getKeysSetByAllServers = getKeysSetByAllServers
     this.config = config
   }
 
   _try (data, cb) {
     const [method, key, ...args] = data
-    const multikey = Array.isArray(key) // if so, we return array, otherwise value or null
-    const multimethod = Array.isArray(method) // if so, the method equals to method[Number(key index === n - 1)]
-    const opaque = args[args.length - 1]
-    const keysByServer = this.getKeysByServer(multikey ? key : [key])
-    const buffer = []
+    const keyFlags = getKeyFlags(key)
+    const quietOpcode = getQuietOpcodeByName(method)
+    const keysByServer = keyFlags.isEmpty
+      ? this.getKeysSetByAllServers(key)
+      : keyFlags.isObject
+        ? this.getKeysMapByServer(key)
+        : this.getKeysSetByServer(keyFlags.isArray ? key : [key])
 
-    let serversHit = 0
-    let keysMisses = 0
+    const buffer = protocol[method].bykeys ? {} : []
+
+    let serversHit = 0 // server got hit when we received a response with the last opaque sent to the server
+    const keysStat = { length: 0, exists: 0, misses: 0 }
     keysByServer.forEach((keys, server) => {
-      // build request packet
+      const opaques = new Set()
+      let lastOpaque
       let packet = Buffer.alloc(0)
+
+      // process keys
       let counter = 0
-      let lastKey
-      keys.forEach(key =>
-        (packet = Buffer.concat([packet, buildPacket(REQUEST_MAGIC, ...protocol[multimethod ? method[Number(keys.size === ++counter && !!(lastKey = key))] : method](key, ...args))])))
+      keys.forEach((value, key) => {
+        lastOpaque = Net.opaque()
+        opaques.add(lastOpaque)
+        const params = keyFlags.isObject
+          ? protocol[method](key, value, ...args, lastOpaque)
+          : protocol[method](key, ...args, lastOpaque)
+        if (keyFlags.isMultikey && quietOpcode && keys.size !== ++counter) {
+          params[0] = quietOpcode
+        }
+        packet = Buffer.concat([packet, buildPacket(REQUEST_MAGIC, ...params)])
+        keysStat.length++
+      })
 
       // get socket from server
       const sock = server.getSocket()
@@ -72,14 +92,21 @@ class NetStream extends Transform {
           const packetSize = header[5] + HEADER_LENGTH
           if (chunks.length >= packetSize) { // check packet size
             const packet = parsePacket(chunks.slice(0, packetSize), header)
-            if (packet && packet[packet.length - 1] === opaque) { // check packet and opaque
-              serversHit += Number(packet[2] === lastKey)
-              if (packet[5] === STATUS_SUCCESS) { // success
-                buffer.push(protocol[method].format ? protocol[method].format(packet) : null)
-              } else if (packet[5] !== STATUS_NOT_FOUND) { // error
-                error = new Error(`iomem: response error: ${STATUS_MESSAGE_MAP[packet[5]] || `${STATUS_MESSAGE_UNKOWN} (${packet[5]})`}`)
-              } else {
-                keysMisses++
+            if (packet) { // check packet
+              const opaque = packet[packet.length - 1]
+              serversHit += Number(opaque === lastOpaque)
+              if (opaques.has(opaque)) { // check opaque
+                if (packet[5] === STATUS_SUCCESS) { // success
+                  if (protocol[method].format) {
+                    protocol[method].format(packet, buffer)
+                  }
+                } else if (packet[5] === STATUS_EXISTS) {
+                  keysStat.exists++
+                } else if (packet[5] === STATUS_NOT_FOUND) {
+                  keysStat.misses++
+                } else {
+                  error = new Error(`iomem: response error: ${STATUS_MESSAGE_MAP[packet[5]] || `${STATUS_MESSAGE_UNKOWN} (${packet[5]})`}`)
+                }
               }
             }
             chunks = chunks.slice(packetSize)
@@ -89,8 +116,8 @@ class NetStream extends Transform {
         }
         if (error) {
           done(error)
-        } else if ((multimethod && serversHit === keysByServer.size) || (buffer.length + keysMisses) >= keys.size) {
-          done(null, multikey ? buffer : buffer[0])
+        } else if (serversHit === keysByServer.size) {
+          done(null, protocol[method].result ? protocol[method].result(keyFlags, buffer, keysStat) : null)
         }
       })
 
@@ -127,9 +154,17 @@ class NetStream extends Transform {
 }
 
 class Net {
+  static _opaque = 0
+
+  static opaque () {
+    Net._opaque = ++Net._opaque % 0xffffffff
+    return Net._opaque
+  }
+
   constructor (servers = [DEFAULT_ADDRESS], options = {}) {
     this._options = options
     this._servers = new Map()
+    this._opaque = 0
 
     servers.forEach(address => {
       const server = new Server(address, this._options.maxConnections, this._options.connectionTimeout)
@@ -142,7 +177,7 @@ class Net {
     })
   }
 
-  getKeysByServer = keys => {
+  getKeysSetByServer = keys => {
     let server
     return keys.reduce((map, key) => {
       server = this._servers.length === 1
@@ -157,9 +192,33 @@ class Net {
     }, new Map())
   }
 
+  getKeysMapByServer = keys => {
+    let server
+    const map = new Map()
+    for (const key in keys) {
+      server = this._servers.length === 1
+        ? this._servers.values().next().value
+        : this._servers.get(this._ring.get(key))
+      if (map.has(server)) {
+        map.get(server).set(key, keys[key])
+      } else {
+        map.set(server, new Map([[key, keys[key]]]))
+      }
+    }
+    return map
+  }
+
+  getKeysSetByAllServers = (key) => {
+    const map = new Map()
+    this._servers.forEach(server => map.set(server, new Set([key])))
+    return map
+  }
+
   query (args = []) {
     const net = new NetStream({
-      getKeysByServer: this.getKeysByServer,
+      getKeysSetByServer: this.getKeysSetByServer,
+      getKeysMapByServer: this.getKeysMapByServer,
+      getKeysSetByAllServers: this.getKeysSetByAllServers,
       config: this._options
     })
 
