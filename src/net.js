@@ -16,6 +16,25 @@ const HASHRING_COMPATIBILITY = 'ketama'
 
 const DEFAULT_ADDRESS = `${Server.DEFAULT_HOSTNAME}:${Server.DEFAULT_PORT}`
 
+class Cleanup {
+  constructor () {
+    this._cleaners = new Set()
+  }
+
+  clean () {
+    this._cleaners.forEach(fn => {
+      if (!fn.done) {
+        fn.done = true
+        fn()
+      }
+    })
+  }
+
+  add (fn) {
+    this._cleaners.add(fn)
+  }
+}
+
 class NetStream extends Transform {
   constructor (options = {}) {
     const { getKeysSetByServer, getKeysMapByServer, getKeysSetByAllServers, config = {}, ...opts } = options
@@ -40,6 +59,7 @@ class NetStream extends Transform {
 
     let serversHit = 0 // server got hit when we received a response with the last opaque sent to the server
     const keysStat = { length: 0, exists: 0, misses: 0 }
+    const cleanup = new Cleanup()
     keysByServer.forEach((keys, server) => {
       const opaques = new Set()
       let lastOpaque
@@ -66,18 +86,24 @@ class NetStream extends Transform {
       // we use pass through therefore we don't listen to the original socket and
       // easily unpipe it so pass through will stop receiving events from the socket
       // and will be destroyed once we call the callback and escape this scope
-      const pass = sock.pipe(new PassThrough({ objectMode: true }))
+      const pass = new PassThrough({ objectMode: true })
 
       const timeout = setTimeout(() => {
-        sock.unpipe(pass)
+        cleanup.clean()
         cb(new Error(`iomem: request timeout (${this.config.timeout})`))
       }, this.config.timeout) // maybe use connectionTimeout when sock.readyState === 'opening' || sock.readyState === 'closed'?
 
       const done = (err, data) => {
-        clearTimeout(timeout)
-        sock.unpipe(pass)
+        cleanup.clean()
         cb(err, data)
       }
+
+      cleanup.add(() => {
+        clearTimeout(timeout)
+        sock.unpipe(pass)
+      })
+
+      sock.pipe(pass)
 
       // socket data
       let chunks = Buffer.alloc(0)
