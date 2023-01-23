@@ -70,7 +70,7 @@ const deserialize = (value, flags) => {
     return value.toString('utf8')
   } else if (flags & FLAGS.bigint) {
     return BigInt(value.toString())
-  } else if (flags & FLAGS.Buffer) {
+  } else if (!flags || flags & FLAGS.Buffer) { // fallback to buffer
     return value
   } else if (flags & FLAGS.Date) {
     return new Date(Number(value.toString()))
