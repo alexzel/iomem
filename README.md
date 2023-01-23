@@ -2,6 +2,11 @@
 
 **WARNING! THIS SOFTWARE IS UNFINISHED! ANYTHING CAN CHANGE AT ANY MOMENT!**
 
+![workflows-nodejs-ci](https://github.com/alexzel/bad-words-next/actions/workflows/node-ci.yml/badge.svg?branch=main)
+![npm version](https://img.shields.io/npm/v/iomem)
+![NPM license](https://img.shields.io/npm/l/iomem)
+![npm downloads](https://img.shields.io/npm/dm/iomem)
+
 Memcached client implementing binary protocol with native multiple keys support.
 
 ## Features
