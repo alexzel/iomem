@@ -223,7 +223,7 @@ class Net {
     })
 
     let pass
-    if (args[0]) { // TODO: now it checks only for method... this will not create a stream for get() and how to deal with flush, stat, etc.. remove Case #2?
+    if (args[0]) {
       pass = new PassThrough({ objectMode: true })
       pass.pipe(net)
     }
