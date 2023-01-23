@@ -1,6 +1,6 @@
 # `iomem`
 
-**WARNING! THIS SOFTWARE IS A WORK IN PROGRESS! DO NOT USE IT!**
+**WARNING! THIS SOFTWARE IS UNFINISHED! ANYTHING CAN CHANGE AT ANY MOMENT!**
 
 Memcached client implementing binary protocol with native multiple keys support.
 
