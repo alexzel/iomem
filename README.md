@@ -1,6 +1,6 @@
 # `iomem`
 
-**WARNING! THIS SOFTWARE IS UNFINISHED! ANYTHING CAN CHANGE AT ANY MOMENT!**
+**WARNING! THIS SOFTWARE IS WORK IN PROCESS!**
 
 ![workflows-nodejs-ci](https://github.com/alexzel/bad-words-next/actions/workflows/node-ci.yml/badge.svg?branch=main)
 ![npm version](https://img.shields.io/npm/v/iomem)
@@ -8,6 +8,13 @@
 ![npm downloads](https://img.shields.io/npm/dm/iomem)
 
 Memcached client implementing binary protocol with native multiple keys support.
+
+## TODOs:
+
+- Implement commands: append, prepend, gat, touch, stat, noop, version
+- Reconsider API
+- Cleanup and improve
+- Server failover
 
 ## Features
 
@@ -72,6 +79,23 @@ iomem.end() // call end() when your script or web server exits
 ```
 
 For more details please see [Commands](#commands) section.
+
+## Options
+
+```js
+{
+  stream: false, // set true to force client methods return streams instead of promises
+  expiry: 60 * 60 * 24 * 1, // 1 day, time interval in seconds
+  maxConnections: 10, // max connections per server
+  connectionTimeout: 1000, // connection timeout in milliseconds
+  timeout: 500, // request timeout in milliseconds
+  retries: 2, // request retries - max retries
+  retriesDelay: 100, // request retries - initial delay
+  retriesFactor: 2 // request retries - exponential factor
+}
+```
+
+Please take a look at [Case #2](#case-2) for a better approach before enabling `stream` flag.
 
 ### Custom servers
 
@@ -307,20 +331,3 @@ pipeline(Readable.from([Mem.get('test:a')][Symbol.iterator]()), iomem.get('test:
 
 iomem.end() // call end() when your script or web server exits
 ```
-
-## Options
-
-```js
-{
-  stream: false, // set true to force client methods return streams instead of promises
-  expiry: 60 * 60 * 24 * 1, // 1 day, time interval in seconds
-  maxConnections: 10, // max connections per server
-  connectionTimeout: 1000, // connection timeout in milliseconds
-  timeout: 500, // request timeout in milliseconds
-  retries: 2, // request retries - max retries
-  retriesDelay: 100, // request retries - initial delay
-  retriesFactor: 2 // request retries - exponential factor
-}
-```
-
-Please take a look at [Case #2](#case-2) for a better approach before enabling `stream` flag.
