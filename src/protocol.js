@@ -78,7 +78,7 @@ const getsv = createMethod(
 const set = createMethod(
   (key, value, expiry, opaque) => mutation(OPCODES.set, key, value, expiry, DEFAULT_CAS, opaque),
   null,
-  () => true
+  (keyFlags, buffer, keysStat) => !keysStat.misses && !keysStat.exists
 )
 
 const add = createMethod(
@@ -99,8 +99,11 @@ const cas = createMethod(
   (keyFlags, buffer, keysStat) => !keysStat.misses && !keysStat.exists
 )
 
-const del = (key, opaque) =>
-  [OPCODES.delete, key, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque]
+const del = createMethod(
+  (key, opaque) => [OPCODES.delete, key, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque],
+  null,
+  (keyFlags, buffer, keysStat) => !keysStat.misses && !keysStat.exists
+)
 
 const incr = (key, initial, delta, expiry, opaque) =>
   counter(OPCODES.increment, key, initial, delta, expiry, opaque)

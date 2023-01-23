@@ -100,9 +100,9 @@ class NetStream extends Transform {
                   if (protocol[method].format) {
                     protocol[method].format(packet, buffer)
                   }
-                } else if (packet[5] === STATUS_EXISTS) {
+                } else if (packet[5] === STATUS_EXISTS) { // exists
                   keysStat.exists++
-                } else if (packet[5] === STATUS_NOT_FOUND) {
+                } else if (packet[5] === STATUS_NOT_FOUND) { // not found
                   keysStat.misses++
                 } else {
                   error = new Error(`iomem: response error: ${STATUS_MESSAGE_MAP[packet[5]] || `${STATUS_MESSAGE_UNKOWN} (${packet[5]})`}`)

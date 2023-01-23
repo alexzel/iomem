@@ -65,10 +65,6 @@ class Client {
     return ['cas', key, value, expiry, cas]
   }
 
-  static cask (key, cas, expiry = DEFAULT_EXPIRY) {
-    return ['cas', key, expiry, cas]
-  }
-
   static del (key) {
     return ['del', key]
   }
@@ -119,10 +115,6 @@ class Client {
 
   cas (key, value, cas, expiry) {
     return this._net.query(Client.cas(key, value, cas, expiry || this._options.expiry))
-  }
-
-  cask (key, cas, expiry) {
-    return this._net.query(Client.cask(key, cas, expiry || this._options.expiry))
   }
 
   del (key) {

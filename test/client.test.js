@@ -136,9 +136,23 @@ describe('client', () => {
       expect(await iomem.get('test:foo')).toBe('a')
     })
 
+    it('sets new value for existing key', async () => {
+      expect(await iomem.set('test:foo', 'a')).toBeTruthy()
+      expect(await iomem.get('test:foo')).toBe('a')
+      expect(await iomem.set('test:foo', 'b')).toBeTruthy()
+      expect(await iomem.get('test:foo')).toBe('b')
+    })
+
     it('sets new values when multi key', async () => {
       expect(await iomem.set(['test:foo', 'test:baz'], 'a')).toBeTruthy()
       expect(await iomem.get(['test:foo', 'test:baz'])).toStrictEqual(['a', 'a'])
+    })
+
+    it('sets new values for existing keys when multi key', async () => {
+      expect(await iomem.set(['test:foo', 'test:baz'], 'a')).toBeTruthy()
+      expect(await iomem.get(['test:foo', 'test:baz'])).toStrictEqual(['a', 'a'])
+      expect(await iomem.set(['test:foo', 'test:baz'], 'b')).toBeTruthy()
+      expect(await iomem.get(['test:foo', 'test:baz'])).toStrictEqual(['b', 'b'])
     })
   })
 
@@ -148,7 +162,21 @@ describe('client', () => {
       expect(await iomem.get('test:foo')).toBe('a')
     })
 
+    it('sets new value for existing key', async () => {
+      expect(await iomem.setk({ 'test:foo': 'a' })).toBeTruthy()
+      expect(await iomem.get('test:foo')).toBe('a')
+      expect(await iomem.setk({ 'test:foo': 'b' })).toBeTruthy()
+      expect(await iomem.get('test:foo')).toBe('b')
+    })
+
     it('sets new values when multi key', async () => {
+      expect(await iomem.setk({ 'test:foo': 'a', 'test:baz': 'b' })).toBeTruthy()
+      expect(await iomem.get(['test:foo', 'test:baz'])).toStrictEqual(['a', 'b'])
+    })
+
+    it('sets new values for existing keys when multi key', async () => {
+      expect(await iomem.setk({ 'test:foo': 'bar', 'test:baz': 'qux' })).toBeTruthy()
+      expect(await iomem.get(['test:foo', 'test:baz'])).toStrictEqual(['bar', 'qux'])
       expect(await iomem.setk({ 'test:foo': 'a', 'test:baz': 'b' })).toBeTruthy()
       expect(await iomem.get(['test:foo', 'test:baz'])).toStrictEqual(['a', 'b'])
     })
@@ -283,6 +311,80 @@ describe('client', () => {
       expect(await iomem.set('test:baz', 'qux')).toBeTruthy()
       expect(await iomem.replacek({ 'test:foo': 'a', 'test:baz': 'b' })).toBeFalsy()
       expect(await iomem.getk(['test:foo', 'test:baz'])).toStrictEqual({ 'test:baz': 'b' })
+    })
+  })
+
+  describe('cas', () => {
+    it('sets new value when cas exists', async () => {
+      expect(await iomem.set('test:foo', 'a')).toBeTruthy()
+      const cas = await iomem.gets('test:foo')
+      expect(await iomem.cas('test:foo', 'b', cas['test:foo'])).toBeTruthy()
+      expect(await iomem.get('test:foo')).toBe('b')
+    })
+
+    it('fails settings a key when cas does not match', async () => {
+      expect(await iomem.set('test:foo', 'a')).toBeTruthy()
+      expect(await iomem.set('test:baz', 'b')).toBeTruthy()
+      const cas = await iomem.gets(['test:foo', 'test:baz'])
+      expect(await iomem.cas('test:foo', 'b', cas['test:baz'])).toBeFalsy()
+      expect(await iomem.get('test:foo')).toBe('a')
+    })
+
+    it('fails settings a key when it does not exist', async () => {
+      expect(await iomem.set('test:foo', 'a')).toBeTruthy()
+      const cas = await iomem.gets('test:foo')
+      await iomem.flush()
+      expect(await iomem.cas('test:foo', 'b', cas['test:foo'])).toBeFalsy()
+      expect(await iomem.get('test:foo')).toBe(null)
+    })
+
+    it('fails setting a key when multi keys (but sets the matching cas)', async () => {
+      expect(await iomem.set('test:foo', 'bar')).toBeTruthy()
+      expect(await iomem.set('test:baz', 'qux')).toBeTruthy()
+      const cas = await iomem.gets(['test:foo', 'test:baz'])
+      expect(await iomem.cas(['test:foo', 'test:baz'], 'b', cas['test:baz'])).toBeFalsy()
+      expect(await iomem.get('test:foo')).toBe('bar')
+      expect(await iomem.get('test:baz')).toBe('b')
+    })
+  })
+
+  describe('del', () => {
+    it('deletes a key', async () => {
+      expect(await iomem.set('test:foo', 'a')).toBeTruthy()
+      expect(await iomem.get('test:foo')).toBe('a')
+      expect(await iomem.del('test:foo')).toBeTruthy()
+      expect(await iomem.get('test:foo')).toBe(null)
+    })
+
+    it('fails deleting a not existing key', async () => {
+      expect(await iomem.del('test:foo')).toBeFalsy()
+      expect(await iomem.get('test:foo')).toBe(null)
+    })
+
+    it('deletes a multi key', async () => {
+      expect(await iomem.set('test:foo', 'a')).toBeTruthy()
+      expect(await iomem.set('test:baz', 'b')).toBeTruthy()
+      expect(await iomem.get('test:foo')).toBe('a')
+      expect(await iomem.get('test:baz')).toBe('b')
+      expect(await iomem.del(['test:foo', 'test:baz'])).toBeTruthy()
+      expect(await iomem.get('test:foo')).toBe(null)
+      expect(await iomem.get('test:baz')).toBe(null)
+    })
+
+    it('fails deleting multi key when the first key does not exists (but deletes the existing one)', async () => {
+      expect(await iomem.set('test:baz', 'b')).toBeTruthy()
+      expect(await iomem.get('test:baz')).toBe('b')
+      expect(await iomem.del(['test:foo', 'test:baz'])).toBeFalsy()
+      expect(await iomem.get('test:foo')).toBe(null)
+      expect(await iomem.get('test:baz')).toBe(null)
+    })
+
+    it('fails deleting multi key when the second key does not exists (but deletes the existing one)', async () => {
+      expect(await iomem.set('test:foo', 'a')).toBeTruthy()
+      expect(await iomem.get('test:foo')).toBe('a')
+      expect(await iomem.del(['test:foo', 'test:baz'])).toBeFalsy()
+      expect(await iomem.get('test:foo')).toBe(null)
+      expect(await iomem.get('test:baz')).toBe(null)
     })
   })
 })
