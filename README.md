@@ -129,7 +129,7 @@ For more details please [Memcached commands](https://github.com/memcached/memcac
 
 Set methods return `true` when all values were successfully set. Otherwise, when client receives `0x0001` or `0x0002` [statuses ](https://github.com/memcached/memcached/wiki/BinaryProtocolRevamped#response-status) from Memcached (this is abnormal behavior for set commands), the returned value will be `false`.
 
-`set(key, value, expiry): true|false` - set a value for a signle key.
+`set(key, value, expiry): true|false` - set a value for a single key.
 
 `set([key1, ...], value, expiry): true|false` - set the same value for multiple keys.
 
@@ -139,7 +139,7 @@ Set methods return `true` when all values were successfully set. Otherwise, when
 
 Add commands set a key only when it is not set yet (a key does not exist in the Memcached). The methods will return `false` when at least one key was not successfully set (meaning a key was already set with some value, so it was not set with the value you provided with a command).
 
-`add(key, value, expiry): true|false` - add a value for a signle key.
+`add(key, value, expiry): true|false` - add a value for a single key.
 
 `add([key1, ...], value, expiry): true|false` - add the same value for multiple keys.
 
@@ -149,7 +149,7 @@ Add commands set a key only when it is not set yet (a key does not exist in the 
 
 Replace commands set a new value for a key only when it is already set with some value (a key does exist in the Memcached). The methods will return `false` when at least one key was not successfully set (meaning a key did not exist in the Memcached when you ran a command).
 
-`replace(key, value, expiry): true|false` - replace a value for a signle key.
+`replace(key, value, expiry): true|false` - replace a value for a single key.
 
 `replace([key1, ...], value, expiry): true|false` - replace the same value for multiple keys.
 
@@ -157,7 +157,7 @@ Replace commands set a new value for a key only when it is already set with some
 
 #### CAS
 
-The `cas` command sets a key with a new value only when `cas` parameter matches `cas` value stored in the key. To retrieve current `cas` value for a key please see [GET](#get) commands.
+The `cas` command sets a key with a new value only when `cas` parameter matches `cas` value stored in the key. To retrieve the current `cas` value for a key please see [GET](#get) commands.
 
 `cas(key, value, cas, expiry): true|false` - set a value if the cas matches.
 
@@ -186,9 +186,20 @@ Paramters:
 
 `expiry` - see [Commands](#commands)
 
+If you want to get the current value from a counter without changing its value, use [GET](#get) commands and manually deserialize the response buffer.
+
+```js
+...
+const FLAGS = require('iomem/src/flags')
+const { deserialize } = require('iomem/src/serializer')
+
+deserialize(await iomem.get('test:foo'), FLAGS.bigint)
+...
+```
+
 #### FLUSH
 
-`flush()` - flush cached items
+`flush()` - flush cached items.
 
 `flush(expiry)` - flush cached items in `expiry` seconds.
 
