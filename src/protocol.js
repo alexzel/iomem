@@ -18,11 +18,11 @@ const mutation = (opcode, key, value, expiry = 0, cas = DEFAULT_CAS, opaque = DE
 
 // increment and decrement
 const counter = (opcode, key, initial, delta, expiry = 0, opaque = DEFAULT_OPAQUE) => {
-  const extras = Buffer.alloc(12)
-  extras.writeUInt32BE(delta, 0)
-  extras.writeUInt32BE(initial, 4)
-  extras.writeUInt32BE(expiry, 8)
-  return [opcode, key, DEFAULT_VALUE, extras, DEFAULT_STATUS, cas, opaque]
+  const extras = Buffer.alloc(20)
+  extras.writeBigInt64BE(delta, 0)
+  extras.writeBigInt64BE(initial, 8)
+  extras.writeUInt32BE(expiry, 16)
+  return [opcode, key, DEFAULT_VALUE, extras, DEFAULT_STATUS, DEFAULT_CAS, opaque]
 }
 
 // flush, touch, gat
@@ -105,11 +105,17 @@ const del = createMethod(
   (keyFlags, buffer, keysStat) => !keysStat.misses && !keysStat.exists
 )
 
-const incr = (key, initial, delta, expiry, opaque) =>
-  counter(OPCODES.increment, key, initial, delta, expiry, opaque)
+const incr = createMethod(
+  (key, initial, delta, expiry, opaque) => counter(OPCODES.increment, key, initial, delta, expiry, opaque),
+  (packet, buffer) => buffer.push(packet[3].readBigInt64BE(0)),
+  (keyFlags, buffer, keysStat) => keyFlags.isArray ? buffer : (buffer[0] || null)
+)
 
-const decr = (key, initial, delta, expiry, opaque) =>
-  counter(OPCODES.decrement, key, initial, delta, expiry, opaque)
+const decr = createMethod(
+  (key, initial, delta, expiry, opaque) => counter(OPCODES.decrement, key, initial, delta, expiry, opaque),
+  (packet, buffer) => buffer.push(packet[3].readBigInt64BE(0)),
+  (keyFlags, buffer, keysStat) => keyFlags.isArray ? buffer : (buffer[0] || null)
+)
 
 const quit = (opaque) =>
   [OPCODES.quit, DEFAULT_KEY, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque]

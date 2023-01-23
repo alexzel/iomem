@@ -69,6 +69,14 @@ class Client {
     return ['del', key]
   }
 
+  static incr (key, initial, delta, expiry = DEFAULT_EXPIRY) {
+    return ['incr', key, initial, delta, expiry]
+  }
+
+  static decr (key, initial, delta, expiry = DEFAULT_EXPIRY) {
+    return ['decr', key, initial, delta, expiry]
+  }
+
   static flush (expiry) {
     return ['flush', expiry]
   }
@@ -119,6 +127,14 @@ class Client {
 
   del (key) {
     return this._net.query(Client.del(key))
+  }
+
+  incr (key, initial, delta, expiry) {
+    return this._net.query(Client.incr(key, initial, delta, expiry || this._options.expiry))
+  }
+
+  decr (key, initial, delta, expiry) {
+    return this._net.query(Client.decr(key, initial, delta, expiry || this._options.expiry))
   }
 
   flush (expiry) {

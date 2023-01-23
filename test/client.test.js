@@ -1,6 +1,8 @@
 'use strict'
 
 const Mem = require('../src/client')
+const { deserialize } = require('../src/serializer')
+const FLAGS = require('../src/flags')
 
 describe('client', () => {
   jest.setTimeout(20000)
@@ -385,6 +387,42 @@ describe('client', () => {
       expect(await iomem.del(['test:foo', 'test:baz'])).toBeFalsy()
       expect(await iomem.get('test:foo')).toBe(null)
       expect(await iomem.get('test:baz')).toBe(null)
+    })
+  })
+
+  describe('incr', () => {
+    it('increments', async () => {
+      expect(await iomem.incr('test:foo', 32n, 4n)).toBe(32n)
+      expect(await iomem.incr('test:foo', 32n, 4n)).toBe(36n)
+      expect(deserialize(await iomem.get('test:foo'), FLAGS.bigint)).toBe(36n)
+      expect(await iomem.incr('test:foo', 3n, 2n)).toBe(38n)
+      await iomem.set('test:foo', 3n)
+      expect(await iomem.incr('test:foo', 3n, 2n)).toBe(5n)
+      expect(await iomem.incr('test:foo', 3n, 2n)).toBe(7n)
+      expect(deserialize(await iomem.get('test:foo'), FLAGS.bigint)).toBe(7n)
+    })
+
+    it('increments multi key', async () => {
+      expect(await iomem.incr(['test:foo', 'test:baz'], 32n, 4n)).toStrictEqual([32n, 32n])
+      expect(await iomem.incr(['test:foo', 'test:baz'], 32n, 4n)).toStrictEqual([36n, 36n])
+    })
+  })
+
+  describe('decr', () => {
+    it('decrements', async () => {
+      expect(await iomem.decr('test:foo', 32n, 4n)).toBe(32n)
+      expect(await iomem.decr('test:foo', 32n, 4n)).toBe(28n)
+      expect(deserialize(await iomem.get('test:foo'), FLAGS.bigint)).toBe(28n)
+      expect(await iomem.decr('test:foo', 3n, 2n)).toBe(26n)
+      await iomem.set('test:foo', 10n)
+      expect(await iomem.decr('test:foo', 3n, 2n)).toBe(8n)
+      expect(await iomem.decr('test:foo', 3n, 2n)).toBe(6n)
+      expect(deserialize(await iomem.get('test:foo'), FLAGS.bigint)).toBe(6n)
+    })
+
+    it('decrements multi key', async () => {
+      expect(await iomem.decr(['test:foo', 'test:baz'], 32n, 4n)).toStrictEqual([32n, 32n])
+      expect(await iomem.decr(['test:foo', 'test:baz'], 32n, 4n)).toStrictEqual([28n, 28n])
     })
   })
 })
