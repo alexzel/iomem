@@ -1,6 +1,6 @@
 # `iomem`
 
-**WARNING! THIS SOFTWARE IS WORK IN PROCESS!**
+**WARNING! THIS SOFTWARE IS WORK IN PROGRESS!**
 
 ![workflows-nodejs-ci](https://github.com/alexzel/bad-words-next/actions/workflows/node-ci.yml/badge.svg?branch=main)
 ![npm version](https://img.shields.io/npm/v/iomem)
@@ -23,6 +23,7 @@ Memcached client implementing binary protocol with native multiple keys support.
 - Async interface
 - Streams interface
 - Hashring aka consistent hashing
+- Built-in serializer and deserializer
 
 ## Installation
 
