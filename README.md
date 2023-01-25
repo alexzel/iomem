@@ -2,7 +2,7 @@
 
 **WARNING! THIS SOFTWARE IS WORK IN PROGRESS!**
 
-![workflows-nodejs-ci](https://github.com/alexzel/bad-words-next/actions/workflows/node-ci.yml/badge.svg?branch=main)
+![workflows-ci](https://github.com/alexzel/bad-words-next/actions/workflows/ci.yml/badge.svg?branch=main)
 ![npm version](https://img.shields.io/npm/v/iomem)
 ![NPM license](https://img.shields.io/npm/l/iomem)
 ![npm downloads](https://img.shields.io/npm/dm/iomem)
