@@ -761,4 +761,16 @@ describe('client', () => {
       expect(await iomem.prependks({ 'test:foo': 'a', 'test:baz': 'b' })).toStrictEqual([])
     })
   })
+
+  describe('stat', () => {
+    it('returns server stat when no key passed', async () => {
+      expect(await iomem.stat()).toHaveProperty('uptime')
+    })
+
+    it('returns server stat when key was passed', async () => {
+      await iomem.set('test:foo', 'bar')
+      const items = await iomem.stat('items')
+      expect(items).toHaveProperty('items:1:number')
+    })
+  })
 })

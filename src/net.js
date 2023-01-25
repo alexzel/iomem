@@ -120,7 +120,7 @@ class NetStream extends Transform {
             const packet = parsePacket(chunks.slice(0, packetSize), header)
             if (packet) { // check packet
               const opaque = packet[packet.length - 1]
-              serversHit += Number(opaque === lastOpaque)
+              serversHit += Number(opaque === lastOpaque && (!data.seq || !(packet[2] && packet[3])))
               if (opaques.has(opaque)) { // check opaque
                 if (packet[5] === STATUS_SUCCESS) { // success
                   if (protocol[method].format) {

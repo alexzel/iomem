@@ -164,14 +164,18 @@ const prepends = createMethod(
   (keyFlags, buffer, keysStat) => keyFlags.isMultikey ? buffer : keysStat.misses ? null : buffer[0]
 )
 
+const stat = createMethod(
+  (key, opaque) => [OPCODES.stat, key, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque],
+  (packet, buffer) => packet[2] && (buffer[packet[2]] = packet[3].toString()),
+  (keyFlags, buffer, keysStat) => buffer,
+  true
+)
+
 const gat = (key, expiry, opaque) =>
   expiring(OPCODES.gat, key, expiry, opaque)
 
 const touch = (key, expiry, opaque) =>
   expiring(OPCODES.touch, key, expiry, opaque)
-
-const stat = (key, opaque) =>
-  [OPCODES.stat, key, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque]
 
 const saslauth = (key, value) =>
   [OPCODES.saslauth, key, value, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, DEFAULT_OPAQUE]
@@ -196,8 +200,8 @@ module.exports = {
   appends,
   prepend,
   prepends,
+  stat,
   gat,
   touch,
-  stat,
   saslauth
 }

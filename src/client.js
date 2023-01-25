@@ -135,6 +135,12 @@ class Client {
     return args
   }
 
+  static stat (key) {
+    const args = ['stat', key]
+    args.seq = true
+    return args
+  }
+
   get (key) {
     return this._net.query(Client.get(key))
   }
@@ -237,6 +243,10 @@ class Client {
 
   prependks (key) {
     return this._net.query(Client.prependks(key))
+  }
+
+  stat (key) {
+    return this._net.query(Client.stat(key))
   }
 
   stream () {

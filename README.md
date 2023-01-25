@@ -11,7 +11,7 @@ Memcached client implementing binary protocol with native multiple keys support.
 
 ## TODOs:
 
-- Implement commands: gat, touch, stat
+- Implement commands: gat, touch
 - Server failover
 - Add types for TypeScript
 
@@ -269,6 +269,14 @@ Append and prepend commands either append or prepend a string value to the exist
 
 `prependks({key: value, ...}): [cas1, ...]` - prepend by `key => value` object and return cas array.
 
+
+#### STAT
+
+Stat command requests server statistics. Without a key the stat command will return a default set of statistics information.
+
+`stat(): object` - get a default set of statistics information
+
+`stat(key): object` - get statistics set specified by key (e.g. 'items', 'slabs', 'sizes', see [Memcached wiki](https://github.com/memcached/memcached/wiki/Commands#statistics))
 
 ### Streams
 
