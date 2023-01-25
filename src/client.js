@@ -77,8 +77,62 @@ class Client {
     return ['decr', key, initial, delta, expiry]
   }
 
+  static quit () {
+    const args = ['quit']
+    args.silent = true
+    return args
+  }
+
   static flush (expiry) {
     return ['flush', expiry]
+  }
+
+  static noop () {
+    return ['noop']
+  }
+
+  static version () {
+    return ['version']
+  }
+
+  static append (key, value) {
+    return ['append', key, value]
+  }
+
+  static appends (key, value) {
+    const args = ['appends', key, value]
+    args.loud = true
+    return args
+  }
+
+  static appendk (key) {
+    return ['append', key]
+  }
+
+  static appendks (key) {
+    const args = ['appends', key]
+    args.loud = true
+    return args
+  }
+
+  static prepend (key, value) {
+    return ['prepend', key, value]
+  }
+
+  static prepends (key, value) {
+    const args = ['prepends', key, value]
+    args.loud = true
+    return args
+  }
+
+  static prependk (key) {
+    return ['prepend', key]
+  }
+
+  static prependks (key) {
+    const args = ['prepends', key]
+    args.loud = true
+    return args
   }
 
   get (key) {
@@ -137,8 +191,52 @@ class Client {
     return this._net.query(Client.decr(key, initial, delta, expiry || this._options.expiry))
   }
 
+  quit () {
+    return this._net.query(Client.quit())
+  }
+
   flush (expiry) {
     return this._net.query(Client.flush(expiry))
+  }
+
+  noop () {
+    return this._net.query(Client.noop())
+  }
+
+  version () {
+    return this._net.query(Client.version())
+  }
+
+  append (key, value) {
+    return this._net.query(Client.append(key, value))
+  }
+
+  appends (key, value) {
+    return this._net.query(Client.appends(key, value))
+  }
+
+  appendk (key) {
+    return this._net.query(Client.appendk(key))
+  }
+
+  appendks (key) {
+    return this._net.query(Client.appendks(key))
+  }
+
+  prepend (key, value) {
+    return this._net.query(Client.prepend(key, value))
+  }
+
+  prepends (key, value) {
+    return this._net.query(Client.prepends(key, value))
+  }
+
+  prependk (key) {
+    return this._net.query(Client.prependk(key))
+  }
+
+  prependks (key) {
+    return this._net.query(Client.prependks(key))
   }
 
   stream () {

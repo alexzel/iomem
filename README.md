@@ -11,7 +11,7 @@ Memcached client implementing binary protocol with native multiple keys support.
 
 ## TODOs:
 
-- Implement commands: append, prepend, gat, touch, stat, noop, version
+- Implement commands: gat, touch, stat
 - Reconsider API
 - Cleanup and improve
 - Server failover
@@ -227,11 +227,49 @@ deserialize(await iomem.get('test:foo'), FLAGS.bigint)
 ...
 ```
 
-#### FLUSH
+#### FLUSH, QUIT, NOOP
 
 `flush()` - flush cached items.
 
 `flush(expiry)` - flush cached items in `expiry` seconds.
+
+`quit()` - closes connection that query hits (either existing or a new one). Useless in multi-connection and multi-server environment.
+
+`noop()` - sends empty packet and returns true on success, may be usefull for pinging.
+
+#### APPEND AND PREPEND
+
+Append and prepend commands either append or prepend a string value to the existing value stored by a key.
+
+##### Append methods
+
+`append(key, value): true|false` - append value to a stored value
+
+`append([key1, ...], value): true|false` - append value to a stored value for multiple keys
+
+`appends(key, value): cas|null` - append value and return new cas.
+
+`appends([key1, ...], value): [cas1, ...]` - append value to multiple keys and return cas array.
+
+`appendk({key: value, ...}): true|false` - append by `key => value` pairs.
+
+`appendks({key: value, ...}): [cas1, ...]` - append by `key => value` pairs and return cas array.
+
+
+##### Prepend methods
+
+`prepend(key, value): true|false` - prepend value to a stored value
+
+`prepend([key1, ...], value): true|false` - prepend value to a stored value for multiple keys
+
+`prepends(key, value): cas|null` - prepend value and return new cas.
+
+`prepends([key1, ...], value): [cas1, ...]` - prepend value to multiple keys and return cas array.
+
+`prependk({key: value, ...}): true|false` - prepend by `key => value` object.
+
+`prependks({key: value, ...}): [cas1, ...]` - prepend by `key => value` object and return cas array.
+
 
 ### Streams
 

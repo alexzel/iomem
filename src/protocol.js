@@ -7,13 +7,18 @@ const { serialize, deserialize } = require('./serializer')
 // Commands:
 //   https://github.com/memcached/memcached/wiki/BinaryProtocolRevamped#commands
 
-// add, set, replace mutations
-const mutation = (opcode, key, value, expiry = 0, cas = DEFAULT_CAS, opaque = DEFAULT_OPAQUE) => {
+// add, set, replace
+const setter = (opcode, key, value, expiry = 0, cas = DEFAULT_CAS, opaque = DEFAULT_OPAQUE) => {
   const [buffer, flags] = serialize(value)
   const extras = Buffer.alloc(8)
   extras.writeUInt32BE(flags, 0)
   extras.writeUInt32BE(expiry, 4)
   return [opcode, key, buffer, extras, DEFAULT_STATUS, cas, opaque]
+}
+
+const midifier = (opcode, key, value, opaque = DEFAULT_OPAQUE) => {
+  const [buffer] = serialize(value)
+  return [opcode, key, buffer, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque]
 }
 
 // increment and decrement
@@ -76,25 +81,25 @@ const getsv = createMethod(
 
 // set or multi set with key, value or [key, ...], [value, ...] pairs
 const set = createMethod(
-  (key, value, expiry, opaque) => mutation(OPCODES.set, key, value, expiry, DEFAULT_CAS, opaque),
+  (key, value, expiry, opaque) => setter(OPCODES.set, key, value, expiry, DEFAULT_CAS, opaque),
   null,
   (keyFlags, buffer, keysStat) => !keysStat.misses && !keysStat.exists
 )
 
 const add = createMethod(
-  (key, value, expiry, opaque) => mutation(OPCODES.add, key, value, expiry, DEFAULT_CAS, opaque),
+  (key, value, expiry, opaque) => setter(OPCODES.add, key, value, expiry, DEFAULT_CAS, opaque),
   null,
   (keyFlags, buffer, keysStat) => !keysStat.misses && !keysStat.exists
 )
 
 const replace = createMethod(
-  (key, value, expiry, opaque) => mutation(OPCODES.replace, key, value, expiry, DEFAULT_CAS, opaque),
+  (key, value, expiry, opaque) => setter(OPCODES.replace, key, value, expiry, DEFAULT_CAS, opaque),
   null,
   (keyFlags, buffer, keysStat) => !keysStat.misses && !keysStat.exists
 )
 
 const cas = createMethod(
-  (key, value, expiry, cas, opaque) => mutation(OPCODES.set, key, value, expiry, cas, opaque),
+  (key, value, expiry, cas, opaque) => setter(OPCODES.set, key, value, expiry, cas, opaque),
   null,
   (keyFlags, buffer, keysStat) => !keysStat.misses && !keysStat.exists
 )
@@ -117,17 +122,47 @@ const decr = createMethod(
   (keyFlags, buffer, keysStat) => keyFlags.isArray ? buffer : (buffer[0] || null)
 )
 
-const quit = (opaque) =>
-  [OPCODES.quit, DEFAULT_KEY, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque]
+const quit = () =>
+  [OPCODES.quit, DEFAULT_KEY, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, DEFAULT_OPAQUE]
 
 const flush = (expiry, opaque) =>
   expiring(OPCODES.flush, DEFAULT_KEY, expiry, opaque)
 
-const append = (key, value, opaque) =>
-  [OPCODES.append, key, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque]
+const noop = createMethod(
+  (_, opaque) => [OPCODES.noop, DEFAULT_KEY, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque],
+  null,
+  () => true
+)
 
-const prepend = (key, value, opaque) =>
-  [OPCODES.prepend, key, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque]
+const version = createMethod(
+  (_, opaque) => [OPCODES.version, DEFAULT_KEY, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque],
+  (packet, buffer) => buffer.push(packet[3].toString()),
+  (keyFlags, buffer) => (buffer[0] || null)
+)
+
+const append = createMethod(
+  (key, value, opaque) => midifier(OPCODES.append, key, value, opaque),
+  null,
+  (keyFlags, buffer, keysStat) => !keysStat.misses && !keysStat.exists
+)
+
+const appends = createMethod(
+  (key, value, opaque) => midifier(OPCODES.append, key, value, opaque),
+  (packet, buffer) => buffer.push(packet[6]),
+  (keyFlags, buffer, keysStat) => keyFlags.isMultikey ? buffer : keysStat.misses ? null : buffer[0]
+)
+
+const prepend = createMethod(
+  (key, value, opaque) => midifier(OPCODES.prepend, key, value, opaque),
+  null,
+  (keyFlags, buffer, keysStat) => !keysStat.misses && !keysStat.exists
+)
+
+const prepends = createMethod(
+  (key, value, opaque) => midifier(OPCODES.prepend, key, value, opaque),
+  (packet, buffer) => buffer.push(packet[6]),
+  (keyFlags, buffer, keysStat) => keyFlags.isMultikey ? buffer : keysStat.misses ? null : buffer[0]
+)
 
 const gat = (key, expiry, opaque) =>
   expiring(OPCODES.gat, key, expiry, opaque)
@@ -137,12 +172,6 @@ const touch = (key, expiry, opaque) =>
 
 const stat = (key, opaque) =>
   [OPCODES.stat, key, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque]
-
-const noop = (opaque) =>
-  [OPCODES.noop, DEFAULT_KEY, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque]
-
-const version = (opaque) =>
-  [OPCODES.version, DEFAULT_KEY, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque]
 
 const saslauth = (key, value) =>
   [OPCODES.saslauth, key, value, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, DEFAULT_OPAQUE]
@@ -161,12 +190,14 @@ module.exports = {
   decr,
   quit,
   flush,
+  noop,
+  version,
   append,
+  appends,
   prepend,
+  prepends,
   gat,
   touch,
   stat,
-  noop,
-  version,
   saslauth
 }

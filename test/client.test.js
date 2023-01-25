@@ -8,6 +8,16 @@ describe('client', () => {
   jest.setTimeout(20000)
   let iomem
 
+  const getOpenSockets = () => {
+    let openSockets = 0
+    iomem._net._servers.forEach(server => {
+      server._sockets.forEach(sock => {
+        openSockets += Number(sock.readyState === 'open')
+      })
+    })
+    return openSockets
+  }
+
   beforeAll(() => {
     iomem = new Mem(['memcached:test@127.0.0.1'], {
       connectionTimeout: 500,
@@ -486,6 +496,281 @@ describe('client', () => {
       }
       await iomem.set('test:foo', obj)
       expect(await iomem.get('test:foo')).toStrictEqual(obj)
+    })
+  })
+
+  describe('quit', () => {
+    it('closes connection', async () => {
+      // close all servers
+      iomem.end()
+
+      // open two sockets
+      await iomem.set('test:foo', 'bar')
+      expect(await iomem.get('test:foo')).toBe('bar')
+
+      // expect 2 sockets to be opened
+      const openSockets = getOpenSockets()
+      expect(openSockets).toBe(2)
+
+      // quit opens a new socket and closes it immediately
+      await iomem.quit()
+
+      // so we don't spawn a new connection and still have 2 sockets open
+      expect(getOpenSockets()).toBe(2)
+    })
+  })
+
+  describe('flush', () => {
+    it('flushes all items', async () => {
+      await iomem.set('test:foo', 'bar')
+      await iomem.set('test:baz', 'qux')
+      expect(await iomem.get('test:foo')).toBe('bar')
+      expect(await iomem.get('test:baz')).toBe('qux')
+      await iomem.flush()
+      expect(await iomem.get('test:foo')).toBe(null)
+      expect(await iomem.get('test:baz')).toBe(null)
+    })
+  })
+
+  describe('noop', () => {
+    it('sends and receives nothing', async () => {
+      expect(await iomem.noop()).toBeTruthy()
+    })
+  })
+
+  describe('version', () => {
+    it('gets version string', async () => {
+      expect(await iomem.version()).toMatch(/^\d+\.\d+\.\d+$/)
+    })
+  })
+
+  describe('append', () => {
+    it('appends a string', async () => {
+      await iomem.set('test:foo', 'bar')
+      expect(await iomem.append('test:foo', 'qux')).toBeTruthy()
+      expect(await iomem.get('test:foo')).toBe('barqux')
+    })
+
+    it('fails when a key does not exist', async () => {
+      expect(await iomem.append('test:foo', 'qux')).toBeFalsy()
+    })
+
+    it('appends a string for multi-keys', async () => {
+      await iomem.setk({ 'test:foo': 'bar', 'test:baz': 'qux' })
+      expect(await iomem.append(['test:foo', 'test:baz'], 'a')).toBeTruthy()
+      const items = await iomem.get(['test:foo', 'test:baz'])
+      expect(items).toStrictEqual(['bara', 'quxa'])
+    })
+
+    it('fails when a key does not exist for multi-keys (but changes an existing key)', async () => {
+      await iomem.set('test:foo', 'bar')
+      expect(await iomem.append(['test:foo', 'test:baz'], 'a')).toBeFalsy()
+      expect(await iomem.get('test:foo')).toBe('bara')
+    })
+  })
+
+  describe('appends', () => {
+    it('appends a string and returns cas', async () => {
+      await iomem.set('test:foo', 'bar')
+      const cas = await iomem.appends('test:foo', 'qux')
+      const items = await iomem.getsv('test:foo')
+      expect(items['test:foo']).toStrictEqual({ value: 'barqux', cas })
+    })
+
+    it('appends a string and returns cas for multi-keys', async () => {
+      await iomem.setk({ 'test:foo': 'bar', 'test:baz': 'qux' })
+      const cass = await iomem.appends(['test:foo', 'test:baz'], 'a')
+      const items = await iomem.getsv(['test:foo', 'test:baz'])
+      expect(items['test:foo']).toStrictEqual({ value: 'bara', cas: cass[0] })
+      expect(items['test:baz']).toStrictEqual({ value: 'quxa', cas: cass[1] })
+    })
+
+    it('fails when item does not exist', async () => {
+      expect(await iomem.appends('test:foo', 'qux')).toBe(null)
+    })
+
+    it('appends only existing keys for multi-key', async () => {
+      await iomem.set('test:foo', 'bar')
+      const cass = await iomem.appends(['test:foo', 'test:baz'], 'a')
+      const items = await iomem.gets('test:foo')
+      expect(cass).toStrictEqual([items['test:foo']])
+    })
+
+    it('responds with empty array when no items exist for multi-key', async () => {
+      expect(await iomem.appends(['test:foo', 'test:baz'], 'a')).toStrictEqual([])
+    })
+  })
+
+  describe('appendk', () => {
+    it('appends a string', async () => {
+      await iomem.set('test:foo', 'bar')
+      expect(await iomem.appendk({ 'test:foo': 'qux' })).toBeTruthy()
+      expect(await iomem.get('test:foo')).toBe('barqux')
+    })
+
+    it('fails when a key does not exist', async () => {
+      expect(await iomem.appendk({ 'test:foo': 'qux' })).toBeFalsy()
+    })
+
+    it('appends a string for multi-keys', async () => {
+      await iomem.setk({ 'test:foo': 'bar', 'test:baz': 'qux' })
+      expect(await iomem.appendk({ 'test:foo': 'a', 'test:baz': 'b' })).toBeTruthy()
+      const items = await iomem.get(['test:foo', 'test:baz'])
+      expect(items).toStrictEqual(['bara', 'quxb'])
+    })
+
+    it('fails when a key does not exist for multi-keys (but changes an existing key)', async () => {
+      await iomem.set('test:foo', 'bar')
+      expect(await iomem.appendk({ 'test:foo': 'a', 'test:baz': 'b' })).toBeFalsy()
+      expect(await iomem.get('test:foo')).toBe('bara')
+    })
+  })
+
+  describe('appendks', () => {
+    it('appends a string and returns cas array', async () => {
+      await iomem.set('test:foo', 'bar')
+      const cass = await iomem.appendks({ 'test:foo': 'qux' })
+      const items = await iomem.getsv('test:foo')
+      expect(cass.length).toBe(1)
+      expect(items['test:foo']).toStrictEqual({ value: 'barqux', cas: cass[0] })
+    })
+
+    it('appends a string and returns cas array for multi-keys', async () => {
+      await iomem.setk({ 'test:foo': 'bar', 'test:baz': 'qux' })
+      const cass = await iomem.appendks({ 'test:foo': 'a', 'test:baz': 'b' })
+      const items = await iomem.getsv(['test:foo', 'test:baz'])
+      expect(items['test:foo']).toStrictEqual({ value: 'bara', cas: cass[0] })
+      expect(items['test:baz']).toStrictEqual({ value: 'quxb', cas: cass[1] })
+    })
+
+    it('responds with empty array item does not exist', async () => {
+      expect(await iomem.appendks({ 'test:foo': 'qux' })).toStrictEqual([])
+    })
+
+    it('appends only existing keys for multi-key', async () => {
+      await iomem.set('test:foo', 'bar')
+      const cass = await iomem.appendks({ 'test:foo': 'a', 'test:baz': 'b' })
+      const items = await iomem.gets('test:foo')
+      expect(cass).toStrictEqual([items['test:foo']])
+    })
+
+    it('responds with empty array when no items exist for multi-key', async () => {
+      expect(await iomem.appendks({ 'test:foo': 'a', 'test:baz': 'b' })).toStrictEqual([])
+    })
+  })
+
+  describe('prepend', () => {
+    it('prepends a string', async () => {
+      await iomem.set('test:foo', 'bar')
+      expect(await iomem.prepend('test:foo', 'qux')).toBeTruthy()
+      expect(await iomem.get('test:foo')).toBe('quxbar')
+    })
+
+    it('fails when a key does not exist', async () => {
+      expect(await iomem.prepend('test:foo', 'qux')).toBeFalsy()
+    })
+
+    it('prepends a string for multi-keys', async () => {
+      await iomem.setk({ 'test:foo': 'bar', 'test:baz': 'qux' })
+      expect(await iomem.prepend(['test:foo', 'test:baz'], 'a')).toBeTruthy()
+      const items = await iomem.get(['test:foo', 'test:baz'])
+      expect(items).toStrictEqual(['abar', 'aqux'])
+    })
+
+    it('fails when a key does not exist for multi-keys (but changes an existing key)', async () => {
+      await iomem.set('test:foo', 'bar')
+      expect(await iomem.prepend(['test:foo', 'test:baz'], 'a')).toBeFalsy()
+      expect(await iomem.get('test:foo')).toBe('abar')
+    })
+  })
+
+  describe('prepends', () => {
+    it('prepends a string and returns cas', async () => {
+      await iomem.set('test:foo', 'bar')
+      const cas = await iomem.prepends('test:foo', 'qux')
+      const items = await iomem.getsv('test:foo')
+      expect(items['test:foo']).toStrictEqual({ value: 'quxbar', cas })
+    })
+
+    it('prepends a string and returns cas for multi-keys', async () => {
+      await iomem.setk({ 'test:foo': 'bar', 'test:baz': 'qux' })
+      const cass = await iomem.prepends(['test:foo', 'test:baz'], 'a')
+      const items = await iomem.getsv(['test:foo', 'test:baz'])
+      expect(items['test:foo']).toStrictEqual({ value: 'abar', cas: cass[0] })
+      expect(items['test:baz']).toStrictEqual({ value: 'aqux', cas: cass[1] })
+    })
+
+    it('fails when item does not exist', async () => {
+      expect(await iomem.prepends('test:foo', 'qux')).toBe(null)
+    })
+
+    it('prepends only existing keys for multi-key', async () => {
+      await iomem.set('test:foo', 'bar')
+      const cass = await iomem.prepends(['test:foo', 'test:baz'], 'a')
+      const items = await iomem.gets('test:foo')
+      expect(cass).toStrictEqual([items['test:foo']])
+    })
+
+    it('responds with empty array when no items exist for multi-key', async () => {
+      expect(await iomem.prepends(['test:foo', 'test:baz'], 'a')).toStrictEqual([])
+    })
+  })
+
+  describe('prependk', () => {
+    it('prepends a string', async () => {
+      await iomem.set('test:foo', 'bar')
+      expect(await iomem.prependk({ 'test:foo': 'qux' })).toBeTruthy()
+      expect(await iomem.get('test:foo')).toBe('quxbar')
+    })
+
+    it('fails when a key does not exist', async () => {
+      expect(await iomem.prependk({ 'test:foo': 'qux' })).toBeFalsy()
+    })
+
+    it('prepends a string for multi-keys', async () => {
+      await iomem.setk({ 'test:foo': 'bar', 'test:baz': 'qux' })
+      expect(await iomem.prependk({ 'test:foo': 'a', 'test:baz': 'b' })).toBeTruthy()
+      const items = await iomem.get(['test:foo', 'test:baz'])
+      expect(items).toStrictEqual(['abar', 'bqux'])
+    })
+
+    it('fails when a key does not exist for multi-keys (but changes an existing key)', async () => {
+      await iomem.set('test:foo', 'bar')
+      expect(await iomem.prependk({ 'test:foo': 'a', 'test:baz': 'b' })).toBeFalsy()
+      expect(await iomem.get('test:foo')).toBe('abar')
+    })
+  })
+
+  describe('prependks', () => {
+    it('prepends a string and returns cas array', async () => {
+      await iomem.set('test:foo', 'bar')
+      const cass = await iomem.prependks({ 'test:foo': 'qux' })
+      const items = await iomem.getsv('test:foo')
+      expect(cass.length).toBe(1)
+      expect(items['test:foo']).toStrictEqual({ value: 'quxbar', cas: cass[0] })
+    })
+
+    it('prepends a string and returns cas array for multi-keys', async () => {
+      await iomem.setk({ 'test:foo': 'bar', 'test:baz': 'qux' })
+      const cass = await iomem.prependks({ 'test:foo': 'a', 'test:baz': 'b' })
+      const items = await iomem.getsv(['test:foo', 'test:baz'])
+      expect(items['test:foo']).toStrictEqual({ value: 'abar', cas: cass[0] })
+      expect(items['test:baz']).toStrictEqual({ value: 'bqux', cas: cass[1] })
+    })
+
+    it('responds with empty array item does not exist', async () => {
+      expect(await iomem.prependks({ 'test:foo': 'qux' })).toStrictEqual([])
+    })
+
+    it('prepends only existing keys for multi-key', async () => {
+      await iomem.set('test:foo', 'bar')
+      const cass = await iomem.prependks({ 'test:foo': 'a', 'test:baz': 'b' })
+      const items = await iomem.gets('test:foo')
+      expect(cass).toStrictEqual([items['test:foo']])
+    })
+
+    it('responds with empty array when no items exist for multi-key', async () => {
+      expect(await iomem.prependks({ 'test:foo': 'a', 'test:baz': 'b' })).toStrictEqual([])
     })
   })
 })

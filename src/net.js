@@ -8,7 +8,7 @@ const Server = require('./server')
 const protocol = require('./protocol')
 const { getQuietOpcodeByName } = require('./opcodes')
 const { buildPacket, parsePacket, parseHeader, HEADER_LENGTH, REQUEST_MAGIC, RESPONSE_MAGIC } = require('./packet')
-const { STATUS_MESSAGE_MAP, STATUS_MESSAGE_UNKOWN, STATUS_SUCCESS, STATUS_NOT_FOUND, STATUS_EXISTS } = require('./statuses')
+const { STATUS_MESSAGE_MAP, STATUS_MESSAGE_UNKOWN, STATUS_SUCCESS, STATUS_NOT_FOUND, STATUS_NOT_STORED, STATUS_EXISTS } = require('./statuses')
 const { getKeyFlags } = require('./keys')
 
 const HASHRING_ALGORITHM = 'md5'
@@ -73,7 +73,7 @@ class NetStream extends Transform {
         const params = keyFlags.isObject
           ? protocol[method](key, value, ...args, lastOpaque)
           : protocol[method](key, ...args, lastOpaque)
-        if (keyFlags.isMultikey && quietOpcode && keys.size !== ++counter) {
+        if (keyFlags.isMultikey && quietOpcode && !data.loud && keys.size !== ++counter) {
           params[0] = quietOpcode
         }
         packet = Buffer.concat([packet, buildPacket(REQUEST_MAGIC, ...params)])
@@ -128,7 +128,7 @@ class NetStream extends Transform {
                   }
                 } else if (packet[5] === STATUS_EXISTS) { // exists
                   keysStat.exists++
-                } else if (packet[5] === STATUS_NOT_FOUND) { // not found
+                } else if (packet[5] === STATUS_NOT_FOUND || packet[5] === STATUS_NOT_STORED) { // not found
                   keysStat.misses++
                 } else {
                   error = new Error(`iomem: response error: ${STATUS_MESSAGE_MAP[packet[5]] || `${STATUS_MESSAGE_UNKOWN} (${packet[5]})`}`)
@@ -149,7 +149,7 @@ class NetStream extends Transform {
 
       // socket end
       pass.on('end', () => {
-        done(new Error('iomem: socket closed unexpectedly'))
+        done(data.silent ? null : new Error('iomem: socket closed unexpectedly'))
       })
 
       // socket error
