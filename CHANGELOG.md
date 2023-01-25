@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/alexzel/iomem/compare/v1.0.0...v1.1.0) (2023-01-25)
+
+
+### Features
+
+* implement failover servers ([e51acb3](https://github.com/alexzel/iomem/commit/e51acb3459289950470f3f317feb0b150c8badf4))
+
 ## [1.0.0](https://github.com/alexzel/iomem/compare/v0.2.4...v1.0.0) (2023-01-25)
 
 
