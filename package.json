@@ -52,5 +52,8 @@
   },
   "dependencies": {
     "hashring": "^3.2.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }
