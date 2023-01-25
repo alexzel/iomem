@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.0.0](https://github.com/alexzel/iomem/compare/v0.2.4...v1.0.0) (2023-01-25)
+
+
+### Features
+
+* implement gat command ([611c447](https://github.com/alexzel/iomem/commit/611c447ef95f9678b20cdbb33baae6c8c92b9850))
+* implement stat command ([b4db682](https://github.com/alexzel/iomem/commit/b4db682f688f2007dc50d1f9b1df39815a033fcd))
+* implement touch command ([1d59ad3](https://github.com/alexzel/iomem/commit/1d59ad3c89cecd761166f5188b1557b1eed4a199))
+
+
+### Miscellaneous Chores
+
+* release 1.0.0 ([4e14d7b](https://github.com/alexzel/iomem/commit/4e14d7b94021367e0a591c3072d7d0b5fd0e66da))
+
 ## [0.2.4](https://github.com/alexzel/iomem/compare/v0.2.3...v0.2.4) (2023-01-25)
 
 
