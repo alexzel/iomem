@@ -9,7 +9,9 @@ Memcached client implementing binary protocol with native multiple keys support.
 
 ## TODOs:
 
-- Server failover
+- Failover servers
+- Optional compression
+- Optional KeepAlive for sockets
 - Add types for TypeScript
 
 ## Features
