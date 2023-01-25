@@ -235,7 +235,7 @@ deserialize(await iomem.get('test:foo'), FLAGS.bigint)
 
 `quit()` - closes connection that query hits (either existing or a new one). Useless in multi-connection and multi-server environment.
 
-`noop()` - sends empty packet and returns true on success, may be usefull for pinging.
+`noop()` - sends empty packet and returns true on success, may be useful for pinging.
 
 #### APPEND AND PREPEND
 
