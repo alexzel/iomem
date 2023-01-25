@@ -773,4 +773,33 @@ describe('client', () => {
       expect(items).toHaveProperty('items:1:number')
     })
   })
+
+  describe('touch', () => {
+    it('succeds when key is set', async () => {
+      await iomem.set('test:foo', 'bar')
+      expect(await iomem.touch('test:foo', 1)).toBeTruthy()
+      expect(await iomem.get('test:foo')).toBe('bar')
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      expect(await iomem.get('test:foo')).toBe(null)
+    })
+
+    it('fails when key is unset', async () => {
+      expect(await iomem.touch('test:foo', 1)).toBeFalsy()
+    })
+
+    it('succeds when key is set for multi-keys', async () => {
+      await iomem.set(['test:foo', 'test:baz'], 'a')
+      expect(await iomem.touch(['test:foo', 'test:baz'], 1)).toBeTruthy()
+      expect(await iomem.get('test:foo')).toBe('a')
+      expect(await iomem.get('test:baz')).toBe('a')
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      expect(await iomem.get('test:foo')).toBe(null)
+      expect(await iomem.get('test:baz')).toBe(null)
+    })
+
+    it('fails when key is unset for multi-key', async () => {
+      await iomem.set('test:foo', 'bar')
+      expect(await iomem.touch(['test:foo', 'test:baz'], 1)).toBeFalsy()
+    })
+  })
 })

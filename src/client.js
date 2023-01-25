@@ -141,6 +141,10 @@ class Client {
     return args
   }
 
+  static touch (key, expiry = DEFAULT_EXPIRY) {
+    return ['touch', key, expiry]
+  }
+
   get (key) {
     return this._net.query(Client.get(key))
   }
@@ -247,6 +251,10 @@ class Client {
 
   stat (key) {
     return this._net.query(Client.stat(key))
+  }
+
+  touch (key, expiry) {
+    return this._net.query(Client.touch(key, expiry || this._options.expiry))
   }
 
   stream () {

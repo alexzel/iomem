@@ -11,7 +11,7 @@ Memcached client implementing binary protocol with native multiple keys support.
 
 ## TODOs:
 
-- Implement commands: gat, touch
+- Implement commands: gat
 - Server failover
 - Add types for TypeScript
 
@@ -277,6 +277,16 @@ Stat command requests server statistics. Without a key the stat command will ret
 `stat(): object` - get a default set of statistics information
 
 `stat(key): object` - get statistics set specified by key (e.g. 'items', 'slabs', 'sizes', see [Memcached wiki](https://github.com/memcached/memcached/wiki/Commands#statistics))
+
+
+#### TOUCH
+
+Touch command sets a new expiration time for a key. Returns `true` when a key exists and `false` otherwise.
+
+`touch(key, expiry): true|false` - set expiration time for a single key.
+
+`touch([key1, ...], expiry): true|false` - set expiration time for multiple keys.
+
 
 ### Streams
 

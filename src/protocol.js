@@ -171,11 +171,14 @@ const stat = createMethod(
   true
 )
 
+const touch = createMethod(
+  (key, expiry, opaque) => expiring(OPCODES.touch, key, expiry, opaque),
+  null,
+  (keyFlags, buffer, keysStat) => !keysStat.misses
+)
+
 const gat = (key, expiry, opaque) =>
   expiring(OPCODES.gat, key, expiry, opaque)
-
-const touch = (key, expiry, opaque) =>
-  expiring(OPCODES.touch, key, expiry, opaque)
 
 const saslauth = (key, value) =>
   [OPCODES.saslauth, key, value, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, DEFAULT_OPAQUE]
