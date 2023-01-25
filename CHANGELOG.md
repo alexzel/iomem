@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/alexzel/iomem/compare/v1.1.0...v1.1.1) (2023-01-25)
+
+
+### Bug Fixes
+
+* readme has to point the client arguments at a first place ([20ce035](https://github.com/alexzel/iomem/commit/20ce035651d0663ad42783eef1cbe17618e80a15))
+
 ## [1.1.0](https://github.com/alexzel/iomem/compare/v1.0.0...v1.1.0) (2023-01-25)
 
 
