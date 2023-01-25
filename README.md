@@ -37,7 +37,7 @@ npm install iomem
 
 ## Usage
 
-The constructor accepts two optional arguments - severs list and options object.
+The constructor accepts two optional arguments - servers list and options object.
 
 ```js
 const iomem = new Mem(['127.0.0.1:11211'], { timeout: 500, retries: 2 })
