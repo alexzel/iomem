@@ -12,9 +12,8 @@ Memcached client implementing binary protocol with native multiple keys support.
 ## TODOs:
 
 - Implement commands: gat, touch, stat
-- Reconsider API
-- Cleanup and improve
 - Server failover
+- Add types for TypeScript
 
 ## Features
 
