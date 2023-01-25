@@ -9,8 +9,8 @@ Memcached client implementing binary protocol with native multiple keys support.
 
 ## TODOs:
 
-- Failover servers
-- Optional compression
+- Optional values compression
+- Optional keys hashing
 - Optional KeepAlive for sockets
 - Add types for TypeScript
 
@@ -90,7 +90,9 @@ For more details please see [Commands](#commands) section.
   timeout: 500, // request timeout in milliseconds
   retries: 2, // request retries - max retries
   retriesDelay: 100, // request retries - initial delay
-  retriesFactor: 2 // request retries - exponential factor
+  retriesFactor: 2, // request retries - exponential factor
+  maxFailures: 10, // max server failures to swap server with a failover server
+  failoverServers: [] // failover servers list
 }
 ```
 

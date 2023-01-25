@@ -37,11 +37,19 @@ class Cleanup {
 
 class NetStream extends Transform {
   constructor (options = {}) {
-    const { getKeysSetByServer, getKeysMapByServer, getKeysSetByAllServers, config = {}, ...opts } = options
+    const {
+      getKeysSetByServer,
+      getKeysMapByServer,
+      getKeysSetByAllServers,
+      serverFailure,
+      config = {},
+      ...opts
+    } = options
     super({ objectMode: true, ...opts })
     this.getKeysSetByServer = getKeysSetByServer
     this.getKeysMapByServer = getKeysMapByServer
     this.getKeysSetByAllServers = getKeysSetByAllServers
+    this.serverFailure = serverFailure
     this.config = config
   }
 
@@ -90,6 +98,7 @@ class NetStream extends Transform {
 
       const timeout = setTimeout(() => {
         cleanup.clean()
+        this.serverFailure(server)
         cb(new Error(`iomem: request timeout (${this.config.timeout})`))
       }, this.config.timeout) // maybe use connectionTimeout when sock.readyState === 'opening' || sock.readyState === 'closed'?
 
@@ -197,6 +206,9 @@ class Net {
       this._servers.set(server.hostname, server)
     })
 
+    this._failovers = this._options.failoverServers.map(address =>
+      new Server(address, this._options.maxConnections, this._options.connectionTimeout))
+
     this._ring = new HashRing([...this._servers.keys()], HASHRING_ALGORITHM, {
       compatibility: HASHRING_COMPATIBILITY,
       'default port': Server.DEFAULT_PORT
@@ -234,10 +246,39 @@ class Net {
     return map
   }
 
-  getKeysSetByAllServers = (key) => {
+  getKeysSetByAllServers = key => {
     const map = new Map()
     this._servers.forEach(server => map.set(server, new Set([key])))
     return map
+  }
+
+  serverFailure = server => {
+    // all the below makes sense only when we have some failover servers
+    if (this._failovers.length) {
+      // server is already failed, so nothing
+      if (server.isFailed()) {
+        return
+      }
+
+      // server has failed, but we still hope it's alive
+      if (server.fail() < this._options.maxFailures) {
+        return
+      }
+
+      // take a server from failovers and push failed server to the end
+      const failover = this._failovers.shift()
+      this._failovers.push(server)
+
+      // don't forget to revive the server in case it failed previously failed
+      failover.revive()
+
+      // add failover server into servers map
+      this._servers.set(failover.hostname, failover)
+      this._ring.swap(server.hostname, failover.hostname)
+
+      // end failed server
+      server.end()
+    }
   }
 
   query (args = []) {
@@ -245,6 +286,7 @@ class Net {
       getKeysSetByServer: this.getKeysSetByServer,
       getKeysMapByServer: this.getKeysMapByServer,
       getKeysSetByAllServers: this.getKeysSetByAllServers,
+      serverFailure: this.serverFailure,
       config: this._options
     })
 

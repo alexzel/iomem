@@ -5,12 +5,12 @@
   "keywords": [
     "cache",
     "memcache",
+    "memcached",
     "memcached-client",
     "binary-protocol",
     "memcached-binary",
     "nosql",
     "elasticache",
-    "cluster",
     "multi",
     "multi-get",
     "multi-set",

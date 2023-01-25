@@ -36,6 +36,8 @@ class Server {
     this._socketIndex = -1
     this._maxSockets = maxSockets
     this._timeout = timeout
+
+    this.revive()
   }
 
   createSocket (index) {
@@ -82,6 +84,19 @@ class Server {
       this._sockets[this._socketIndex] = this.createSocket(this._socketIndex)
     }
     return this._sockets[this._socketIndex]
+  }
+
+  isFailed () {
+    return this._failed
+  }
+
+  fail () {
+    return ++this._failures
+  }
+
+  revive () {
+    this._failures = 0
+    this._failed = false
   }
 
   end () {
