@@ -67,7 +67,7 @@ const getk = createMethod(
 const gets = createMethod(
   (key, opaque) => [OPCODES.getk, key, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque],
   (packet, buffer) => (buffer[packet[2]] = packet[6]),
-  (keyFlags, buffer, keysStat) => keyFlags.isArray ? buffer : keysStat.misses ? null : buffer,
+  (keyFlags, buffer, keysStat) => keyFlags.isArray ? buffer : keysStat.misses ? null : buffer[Object.keys(buffer)[0]],
   true
 )
 
@@ -75,7 +75,7 @@ const gets = createMethod(
 const getsv = createMethod(
   (key, opaque) => [OPCODES.getk, key, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque],
   (packet, buffer) => (buffer[packet[2]] = { value: deserialize(packet[3], packet[4].readUInt32BE(0)), cas: packet[6] }),
-  (keyFlags, buffer, keysStat) => keyFlags.isArray ? buffer : keysStat.misses ? null : buffer,
+  (keyFlags, buffer, keysStat) => keyFlags.isArray ? buffer : keysStat.misses ? null : buffer[Object.keys(buffer)[0]],
   true
 )
 

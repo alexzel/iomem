@@ -147,11 +147,11 @@ For more details please [Memcached commands](https://github.com/memcached/memcac
 
 `getk([key1, ...]): {key: value, ...}` - get a `key => value` object for multiple keys.
 
-`gets(key): {key: cas}|null` - get a `key => cas` object for a single key.
+`gets(key): cas|null` - get a `key => cas` object for a single key.
 
 `gets([key1, ...]): {key: cas, ...}` - get a `key => cas` object for multiple keys.
 
-`getsv(key): {key: {value, cas}}|null` - get a `key => { value, cas }` object for a single key.
+`getsv(key): {value, cas}|null` - get a `key => { value, cas }` object for a single key.
 
 `getsv([key1, ...]): {key: {value, cas}}, ...}` - get a `key => { value, cas }` object for multiple keys.
 
