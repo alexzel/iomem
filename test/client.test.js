@@ -802,4 +802,30 @@ describe('client', () => {
       expect(await iomem.touch(['test:foo', 'test:baz'], 1)).toBeFalsy()
     })
   })
+
+  describe('gat', () => {
+    it('touches and gets when key is set', async () => {
+      await iomem.set('test:foo', { s: 'bar', a: [1, 2, 3] })
+      expect(await iomem.gat('test:foo', 1)).toStrictEqual({ s: 'bar', a: [1, 2, 3] })
+    })
+
+    it('fails when key is unset', async () => {
+      expect(await iomem.gat('test:foo', 1)).toBe(null)
+    })
+
+    it('touches and gets when key is set for multi-keys', async () => {
+      await iomem.setk({ 'test:foo': 'a', 'test:baz': 'b' })
+      expect(await iomem.gat(['test:foo', 'test:baz'], 1)).toStrictEqual(['a', 'b'])
+      expect(await iomem.get('test:foo')).toBe('a')
+      expect(await iomem.get('test:baz')).toBe('b')
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      expect(await iomem.get('test:foo')).toBe(null)
+      expect(await iomem.get('test:baz')).toBe(null)
+    })
+
+    it('touches and gets set keys and ignores unset keys for multi-key', async () => {
+      await iomem.set('test:foo', 'bar')
+      expect(await iomem.get(['test:foo', 'test:baz'], 1)).toStrictEqual(['bar'])
+    })
+  })
 })

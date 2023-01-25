@@ -11,7 +11,6 @@ Memcached client implementing binary protocol with native multiple keys support.
 
 ## TODOs:
 
-- Implement commands: gat
 - Server failover
 - Add types for TypeScript
 
@@ -286,6 +285,15 @@ Touch command sets a new expiration time for a key. Returns `true` when a key ex
 `touch(key, expiry): true|false` - set expiration time for a single key.
 
 `touch([key1, ...], expiry): true|false` - set expiration time for multiple keys.
+
+
+#### GAT
+
+Gat command sets a new expiration time for a key and returns the key value.
+
+`gat(key, expiry): null|value` - set expiration time for a single key.
+
+`gat([key1, ...], expiry): [value, ...]` - set expiration time for a single key.
 
 
 ### Streams

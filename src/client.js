@@ -145,6 +145,10 @@ class Client {
     return ['touch', key, expiry]
   }
 
+  static gat (key, expiry = DEFAULT_EXPIRY) {
+    return ['gat', key, expiry]
+  }
+
   get (key) {
     return this._net.query(Client.get(key))
   }
@@ -255,6 +259,10 @@ class Client {
 
   touch (key, expiry) {
     return this._net.query(Client.touch(key, expiry || this._options.expiry))
+  }
+
+  gat (key, expiry) {
+    return this._net.query(Client.gat(key, expiry || this._options.expiry))
   }
 
   stream () {

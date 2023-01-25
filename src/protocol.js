@@ -177,8 +177,11 @@ const touch = createMethod(
   (keyFlags, buffer, keysStat) => !keysStat.misses
 )
 
-const gat = (key, expiry, opaque) =>
-  expiring(OPCODES.gat, key, expiry, opaque)
+const gat = createMethod(
+  (key, expiry, opaque) => expiring(OPCODES.gat, key, expiry, opaque),
+  (packet, buffer) => buffer.push(deserialize(packet[3], packet[4].readUInt32BE(0))),
+  (keyFlags, buffer) => keyFlags.isArray ? buffer : (buffer[0] || null)
+)
 
 const saslauth = (key, value) =>
   [OPCODES.saslauth, key, value, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, DEFAULT_OPAQUE]
