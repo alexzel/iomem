@@ -7,13 +7,6 @@
 
 Memcached client implementing binary protocol with native multiple keys support.
 
-## TODOs:
-
-- Optional values compression
-- Optional keys hashing
-- Optional KeepAlive for sockets
-- Add types for TypeScript
-
 ## Features
 
 - Binary Memcached protocol implementation
@@ -107,7 +100,7 @@ For more details please see [Commands](#commands) section.
 
 Please take a look at [Case #2](#case-2) for a better approach before enabling `stream` flag.
 
-### Custom servers
+## Custom servers
 
 ```js
 const Mem = require('iomem')
@@ -130,7 +123,7 @@ or
 // /path/to/memcached.sock
 ```
 
-### Commands
+## Commands
 
 Please note that the library automatically performs value serialization and deserialization. Here is a list of the possible value types:
 
@@ -146,7 +139,7 @@ The following data types for `key` and `expiry` are must by ensured by the libra
 
 For more details please [Memcached commands](https://github.com/memcached/memcached/wiki/BinaryProtocolRevamped#commands).
 
-#### GET
+### GET
 
 `get(key): value|null` - get a value for a single key.
 
@@ -164,7 +157,7 @@ For more details please [Memcached commands](https://github.com/memcached/memcac
 
 `getsv([key1, ...]): {key: {value, cas}}, ...}` - get a `key => { value, cas }` object for multiple keys.
 
-#### SET
+### SET
 
 Set methods return `true` when all values were successfully set. Otherwise, when client receives `0x0001` or `0x0002` [statuses ](https://github.com/memcached/memcached/wiki/BinaryProtocolRevamped#response-status) from Memcached (this is abnormal behavior for set commands), the returned value will be `false`.
 
@@ -174,7 +167,7 @@ Set methods return `true` when all values were successfully set. Otherwise, when
 
 `setk({key: value, ...}, expiry): true|false` - set multiple values with `key => value` object.
 
-#### ADD
+### ADD
 
 Add commands set a key only when it is not set yet (a key does not exist in the Memcached). The methods will return `false` when at least one key was not successfully set (meaning a key was already set with some value, so it was not set with the value you provided with a command).
 
@@ -184,7 +177,7 @@ Add commands set a key only when it is not set yet (a key does not exist in the 
 
 `addk({key: value, ...}, expiry): true|false` - add multiple values with `key => value` object.
 
-#### REPLACE
+### REPLACE
 
 Replace commands set a new value for a key only when it is already set with some value (a key does exist in the Memcached). The methods will return `false` when at least one key was not successfully set (meaning a key did not exist in the Memcached when you ran a command).
 
@@ -194,13 +187,13 @@ Replace commands set a new value for a key only when it is already set with some
 
 `replacek({key: value, ...}, expiry): true|false` - replace multiple values with `key => value` object.
 
-#### CAS
+### CAS
 
 The `cas` command sets a key with a new value only when `cas` parameter matches `cas` value stored in the key. To retrieve the current `cas` value for a key please see [GET](#get) commands.
 
 `cas(key, value, cas, expiry): true|false` - set a value if the cas matches.
 
-#### DEL
+### DEL
 
 Delete commands delete a key only when it exists. The methods will return `false` when at least one key does not exist.
 
@@ -209,7 +202,7 @@ Delete commands delete a key only when it exists. The methods will return `false
 `del([key1, ...]): true|false` - delete multiple keys.
 
 
-#### INCERMENT AND DECREMENT
+### INCERMENT AND DECREMENT
 
 Increment and decrement commands add or substract the specified `delta` value from the current counter value initialized with `initial` value. You can use `SET`, `ADD`, `REPLACE` commands to set a counter value.
 
@@ -236,7 +229,7 @@ deserialize(await iomem.get('test:foo'), FLAGS.bigint)
 ...
 ```
 
-#### FLUSH, QUIT, NOOP
+### FLUSH, QUIT, NOOP
 
 `flush()` - flush cached items.
 
@@ -246,11 +239,11 @@ deserialize(await iomem.get('test:foo'), FLAGS.bigint)
 
 `noop()` - sends empty packet and returns true on success, may be useful for pinging.
 
-#### APPEND AND PREPEND
+### APPEND AND PREPEND
 
 Append and prepend commands either append or prepend a string value to the existing value stored by a key.
 
-##### Append methods
+#### Append methods
 
 `append(key, value): true|false` - append value to a stored value
 
@@ -265,7 +258,7 @@ Append and prepend commands either append or prepend a string value to the exist
 `appendks({key: value, ...}): [cas1, ...]` - append by `key => value` pairs and return cas array.
 
 
-##### Prepend methods
+#### Prepend methods
 
 `prepend(key, value): true|false` - prepend value to a stored value
 
@@ -280,7 +273,7 @@ Append and prepend commands either append or prepend a string value to the exist
 `prependks({key: value, ...}): [cas1, ...]` - prepend by `key => value` object and return cas array.
 
 
-#### STAT
+### STAT
 
 Stat command requests server statistics. Without a key the stat command will return a default set of statistics information.
 
@@ -289,7 +282,7 @@ Stat command requests server statistics. Without a key the stat command will ret
 `stat(key): object` - get statistics set specified by key (e.g. 'items', 'slabs', 'sizes', see [Memcached wiki](https://github.com/memcached/memcached/wiki/Commands#statistics))
 
 
-#### TOUCH
+### TOUCH
 
 Touch command sets a new expiration time for a key. Returns `true` when a key exists and `false` otherwise.
 
@@ -298,7 +291,7 @@ Touch command sets a new expiration time for a key. Returns `true` when a key ex
 `touch([key1, ...], expiry): true|false` - set expiration time for multiple keys.
 
 
-#### GAT
+### GAT
 
 Gat command sets a new expiration time for a key and returns the key value.
 
@@ -307,9 +300,9 @@ Gat command sets a new expiration time for a key and returns the key value.
 `gat([key1, ...], expiry): [value, ...]` - set expiration time for a single key.
 
 
-### Streams
+## Streams
 
-#### Case #1:
+### Case #1:
 
 Force `iomem` methods to return a stream instead of a promise by passing `stream: true` flag.
 
@@ -341,7 +334,7 @@ pipeline(iomem.get('test:a'), new Echo(), err => {
 iomem.end() // call end() when your script or web server exits
 ```
 
-#### Case #2:
+### Case #2:
 
 Create a stream with special method called `stream` and supply data with readable stream. Do not care about `stream` flag.
 
@@ -375,7 +368,7 @@ pipeline(Readable.from([Mem.get('test:a')][Symbol.iterator]()), iomem.stream(), 
 iomem.end() // call end() when your script or web server exits
 ```
 
-#### Case #3:
+### Case #3:
 
 Combine case #1 with readable stream to supply extra data into the stream.
 
@@ -406,3 +399,10 @@ pipeline(Readable.from([Mem.get('test:a')][Symbol.iterator]()), iomem.get('test:
 
 iomem.end() // call end() when your script or web server exits
 ```
+
+## TODOs:
+
+- Optional values compression
+- Optional keys hashing
+- Optional KeepAlive for sockets
+- Add types for TypeScript
