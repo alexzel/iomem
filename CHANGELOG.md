@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.2](https://github.com/alexzel/iomem/compare/v1.1.1...v1.1.2) (2023-01-25)
+
+
+### Bug Fixes
+
+* fix readme typo ([949d23f](https://github.com/alexzel/iomem/commit/949d23f08f2d743aecd70346b26a42d17a742212))
+* fix sections formatting in readme file ([75df76f](https://github.com/alexzel/iomem/commit/75df76f3b8112f0465d3fb40443b7f8934f15d00))
+
 ## [1.1.1](https://github.com/alexzel/iomem/compare/v1.1.0...v1.1.1) (2023-01-25)
 
 
