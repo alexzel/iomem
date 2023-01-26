@@ -202,12 +202,12 @@ class Net {
     this._opaque = 0
 
     servers.forEach(address => {
-      const server = new Server(address, this._options.maxConnections, this._options.connectionTimeout)
+      const server = new Server(address, this._options.maxConnections, this._options.connectionTimeout, this._options.keepAliveInitialDelay)
       this._servers.set(server.hostname, server)
     })
 
     this._failovers = this._options.failoverServers.map(address =>
-      new Server(address, this._options.maxConnections, this._options.connectionTimeout))
+      new Server(address, this._options.maxConnections, this._options.connectionTimeout, this._options.keepAliveInitialDelay))
 
     this._ring = new HashRing([...this._servers.keys()], HASHRING_ALGORITHM, {
       compatibility: HASHRING_COMPATIBILITY,

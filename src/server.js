@@ -12,7 +12,7 @@ class Server {
   // Server address formats:
   //  - [username:password@]host[:port]
   //  - /path/to/memcached.sock
-  constructor (address, maxSockets, timeout) {
+  constructor (address, maxSockets, timeout, keepAliveInitialDelay) {
     let [auth, hostname] = address.split('@')
     if (!hostname) {
       hostname = auth || Server.DEFAULT_HOSTNAME
@@ -36,6 +36,7 @@ class Server {
     this._socketIndex = -1
     this._maxSockets = maxSockets
     this._timeout = timeout
+    this._keepAliveInitialDelay = keepAliveInitialDelay
 
     this.revive()
   }
@@ -61,6 +62,8 @@ class Server {
       this.destroySocket(sock.index)
     })
     sock.setTimeout(this._timeout)
+    sock.setKeepAlive(true, this.__keepAliveInitialDelay)
+    sock.setNoDelay(true)
     sock.index = index === undefined
       ? ++this._socketIndex
       : index

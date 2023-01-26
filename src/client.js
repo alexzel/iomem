@@ -14,7 +14,8 @@ const DEFAULT_OPTIONS = {
   retriesDelay: 100, // request retries - initial delay
   retriesFactor: 2, // request retries - exponential factor
   maxFailures: 10, // max server failures to swap server with a failover server
-  failoverServers: [] // failover servers list
+  failoverServers: [], // failover servers list
+  keepAliveInitialDelay: 0 // initial delay in milliseconds for keep-alive on sockets, zero means the sockets keep-alive is disabled
 }
 
 class Client {
