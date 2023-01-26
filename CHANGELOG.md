@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/alexzel/iomem/compare/v1.1.2...v1.2.0) (2023-01-26)
+
+
+### Features
+
+* add keepAliveInitialDelay config option ([cb061a1](https://github.com/alexzel/iomem/commit/cb061a19a749c131c0e0668203672f123f6f658e))
+
+
+### Bug Fixes
+
+* fix connection timeout and keep sockets alive ([314af45](https://github.com/alexzel/iomem/commit/314af456e1e9cbe310103edf0bd8da47c229f63c))
+
 ## [1.1.2](https://github.com/alexzel/iomem/compare/v1.1.1...v1.1.2) (2023-01-25)
 
 
