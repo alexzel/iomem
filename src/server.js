@@ -49,8 +49,13 @@ class Server {
       this.destroySocket(sock.index)
     })
     sock.on('timeout', () => {
-      sock.end()
-      this.destroySocket(sock.index)
+      if (sock.readyState !== 'open') {
+        sock.end()
+        this.destroySocket(sock.index)
+      }
+    })
+    sock.once('connect', () => {
+      sock.setTimeout(0)
     })
     sock.on('end', () => {
       this.destroySocket(sock.index)
