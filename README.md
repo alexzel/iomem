@@ -409,5 +409,4 @@ iomem.end() // call end() when your script or web server exits
 
 - Optional values compression
 - Optional keys hashing
-- Optional KeepAlive for sockets
 - Add types for TypeScript
