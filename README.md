@@ -403,7 +403,7 @@ iomem.end() // call end() when your script or web server exits
 ### Static methods for readable streams
 
 As you may have noticed from the above examples, in order to supply a readable stream with client methods you have to
-use static version of the methods like `Mem.get('test:a')` instead of `iomem.get('test:a')`.
+use a static version of the methods like `Mem.get('test:a')` instead of `iomem.get('test:a')`.
 
 The caveat here is that you may assume that for the methods accepting an expiry (like `set`, `add`, etc..)
 it will use the default expiry that you have passed into the client constructor in case you omit the method argument.
