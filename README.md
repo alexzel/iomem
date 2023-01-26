@@ -400,6 +400,46 @@ pipeline(rs, iomem.get('test:b'), ws, err => {
 iomem.end() // call end() when your script or web server exits
 ```
 
+### Static methods for readable streams
+
+As you may have noticed from the above examples, in order to supply a readable stream with client methods you have to
+use static version of the methods like `Mem.get('test:a')` instead of `iomem.get('test:a')`.
+
+The caveat here is that you may assume that for the methods accepting an expiry (like `set`, `add`, etc..)
+it will use the default expiry that you have passed into the client constructor in case you omit the method argument.
+
+But the reality is that it won't know anything about your client instances and therefore their configs as it's a
+static class method. So it will fall to using the default 1 day interval as an expiry.
+
+In order to supply static methods with default expiry, please use `Mem.setDefaultExpiry(expiry)` static method.
+
+```js
+const Mem = require('iomem')
+const iomem = new Mem(['127.0.0.1:11211'], { stream: true })
+
+const { pipeline, Readable, Writable } = require('node:stream')
+
+// Set default expiry for static methods
+Mem.setDefaultExpiry(60 * 60) // 1 hour
+
+// Readable stream
+const rs = Readable.from([Mem.set('test:a', 'a'), Mem.get('test:a')][Symbol.iterator]())
+
+// Writable stream
+const ws = new Writable({ objectMode: true, write (data, _, cb) { console.log(data); cb() } })
+
+// Pipeline
+pipeline(rs, iomem.get('test:b'), ws, err => {
+  if (err) {
+    console.error(err)
+  }
+})
+
+...
+
+iomem.end() // call end() when your script or web server exits
+```
+
 ## TODOs:
 
 - Optional values compression

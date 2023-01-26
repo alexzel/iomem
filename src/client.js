@@ -24,6 +24,11 @@ class Client {
     this._net = new Net(servers, this._options)
   }
 
+  static DEFAULT_EXPIRY = DEFAULT_EXPIRY
+  static setDefaultExpiry (expiry = DEFAULT_EXPIRY) {
+    Client.DEFAULT_EXPIRY = expiry
+  }
+
   static get (key) {
     return ['get', key]
   }
@@ -40,31 +45,31 @@ class Client {
     return ['getsv', key]
   }
 
-  static set (key, value, expiry = DEFAULT_EXPIRY) {
+  static set (key, value, expiry = Client.DEFAULT_EXPIRY) {
     return ['set', key, value, expiry]
   }
 
-  static setk (key, expiry = DEFAULT_EXPIRY) {
+  static setk (key, expiry = Client.DEFAULT_EXPIRY) {
     return ['set', key, expiry]
   }
 
-  static add (key, value, expiry = DEFAULT_EXPIRY) {
+  static add (key, value, expiry = Client.DEFAULT_EXPIRY) {
     return ['add', key, value, expiry]
   }
 
-  static addk (key, expiry = DEFAULT_EXPIRY) {
+  static addk (key, expiry = Client.DEFAULT_EXPIRY) {
     return ['add', key, expiry]
   }
 
-  static replace (key, value, expiry = DEFAULT_EXPIRY) {
+  static replace (key, value, expiry = Client.DEFAULT_EXPIRY) {
     return ['replace', key, value, expiry]
   }
 
-  static replacek (key, expiry = DEFAULT_EXPIRY) {
+  static replacek (key, expiry = Client.DEFAULT_EXPIRY) {
     return ['replace', key, expiry]
   }
 
-  static cas (key, value, cas, expiry = DEFAULT_EXPIRY) {
+  static cas (key, value, cas, expiry = Client.DEFAULT_EXPIRY) {
     return ['cas', key, value, expiry, cas]
   }
 
@@ -72,11 +77,11 @@ class Client {
     return ['del', key]
   }
 
-  static incr (key, initial, delta, expiry = DEFAULT_EXPIRY) {
+  static incr (key, initial, delta, expiry = Client.DEFAULT_EXPIRY) {
     return ['incr', key, initial, delta, expiry]
   }
 
-  static decr (key, initial, delta, expiry = DEFAULT_EXPIRY) {
+  static decr (key, initial, delta, expiry = Client.DEFAULT_EXPIRY) {
     return ['decr', key, initial, delta, expiry]
   }
 
@@ -144,11 +149,11 @@ class Client {
     return args
   }
 
-  static touch (key, expiry = DEFAULT_EXPIRY) {
+  static touch (key, expiry = Client.DEFAULT_EXPIRY) {
     return ['touch', key, expiry]
   }
 
-  static gat (key, expiry = DEFAULT_EXPIRY) {
+  static gat (key, expiry = Client.DEFAULT_EXPIRY) {
     return ['gat', key, expiry]
   }
 
