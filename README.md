@@ -14,7 +14,9 @@ Memcached client implementing binary protocol with native multiple keys support.
 - Async interface
 - Streams interface
 - Hashring aka consistent hashing
+- Failover servers with dynamic swap
 - Built-in serializer and deserializer
+- SASL auth with username and password
 
 ## Installation
 
@@ -33,6 +35,7 @@ npm install iomem
 The constructor accepts two optional arguments - servers list and options object.
 
 ```js
+const Mem = require('iomem')
 const iomem = new Mem(['127.0.0.1:11211'], { timeout: 500, retries: 2 })
 ...
 ```
