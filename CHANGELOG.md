@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/alexzel/iomem/compare/v1.2.0...v1.3.0) (2023-01-26)
+
+
+### Features
+
+* implement Mem.setDefaultExpiry for static methods expiry ([78929de](https://github.com/alexzel/iomem/commit/78929de1ea58701e84e81c89eb87dd4bddc9ab5f))
+
 ## [1.2.0](https://github.com/alexzel/iomem/compare/v1.1.2...v1.2.0) (2023-01-26)
 
 
