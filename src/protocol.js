@@ -7,6 +7,8 @@ const { serialize, deserialize } = require('./serializer')
 // Commands:
 //   https://github.com/memcached/memcached/wiki/BinaryProtocolRevamped#commands
 
+// Helpers
+
 // add, set, replace
 const setter = (opcode, key, value, expiry = 0, cas = DEFAULT_CAS, opaque = DEFAULT_OPAQUE) => {
   const [buffer, flags] = serialize(value)
@@ -14,11 +16,6 @@ const setter = (opcode, key, value, expiry = 0, cas = DEFAULT_CAS, opaque = DEFA
   extras.writeUInt32BE(flags, 0)
   extras.writeUInt32BE(expiry, 4)
   return [opcode, key, buffer, extras, DEFAULT_STATUS, cas, opaque]
-}
-
-const midifier = (opcode, key, value, opaque = DEFAULT_OPAQUE) => {
-  const [buffer] = serialize(value)
-  return [opcode, key, buffer, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque]
 }
 
 // increment and decrement
@@ -40,6 +37,12 @@ const expiring = (opcode, key, expiry, opaque = DEFAULT_OPAQUE) => {
   return [opcode, key, DEFAULT_VALUE, extras, DEFAULT_STATUS, DEFAULT_CAS, opaque]
 }
 
+// append and prepend
+const midifier = (opcode, key, value, opaque = DEFAULT_OPAQUE) => {
+  const [buffer] = serialize(value)
+  return [opcode, key, buffer, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque]
+}
+
 // creates protocol method function and extend it with format(), result(), and bykeys flag
 const createMethod = (method, format, result, bykeys = false) => {
   method.format = format
@@ -47,6 +50,8 @@ const createMethod = (method, format, result, bykeys = false) => {
   method.bykeys = bykeys
   return method
 }
+
+// Commands
 
 // get or multi get with value or [value, ...] response
 const get = createMethod(
