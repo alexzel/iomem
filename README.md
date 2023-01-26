@@ -317,18 +317,14 @@ const iomem = new Mem(['127.0.0.1:11211'], { stream: true })
 
 const { pipeline, Writable } = require('node:stream')
 
-class Echo extends Writable {
-  constructor (opts) {
-    super({ objectMode: true, ...opts })
-  }
+// Set some data
+await iomem.set('test:a', 'a')
 
-  _write (data, _, cb) {
-    console.log(data)
-    cb()
-  }
-}
+// Writable stream
+const ws = new Writable({ objectMode: true, write (data, _, cb) { console.log(data); cb() } })
 
-pipeline(iomem.get('test:a'), new Echo(), err => {
+// Pipeline
+pipeline(iomem.get('test:a'), ws, err => {
   if (err) {
     console.error(err)
   }
@@ -351,18 +347,17 @@ const iomem = new Mem(['127.0.0.1:11211'])
 
 const { pipeline, Readable, Writable } = require('node:stream')
 
-class Echo extends Writable {
-  constructor (opts) {
-    super({ objectMode: true, ...opts })
-  }
+// Set some data
+await iomem.set('test:a', 'a')
 
-  _write (data, _, cb) {
-    console.log(data)
-    cb()
-  }
-}
+// Readable stream
+const rs = Readable.from([Mem.get('test:a')][Symbol.iterator]())
 
-pipeline(Readable.from([Mem.get('test:a')][Symbol.iterator]()), iomem.stream(), new Echo(), err => {
+// Writable stream
+const ws = new Writable({ objectMode: true, write (data, _, cb) { console.log(data); cb() } })
+
+// Pipeline
+pipeline(rs, iomem.stream(), ws, err => {
   if (err) {
     console.error(err)
   }
@@ -383,18 +378,18 @@ const iomem = new Mem(['127.0.0.1:11211'], { stream: true })
 
 const { pipeline, Readable, Writable } = require('node:stream')
 
-class Echo extends Writable {
-  constructor (opts) {
-    super({ objectMode: true, ...opts })
-  }
+// Set some data
+await iomem.set('test:a', 'a')
+await iomem.set('test:b', 'b')
 
-  _write (data, _, cb) {
-    console.log(data)
-    cb()
-  }
-}
+// Readable stream
+const rs = Readable.from([Mem.get('test:a')][Symbol.iterator]())
 
-pipeline(Readable.from([Mem.get('test:a')][Symbol.iterator]()), iomem.get('test:b'), new Echo(), err => {
+// Writable stream
+const ws = new Writable({ objectMode: true, write (data, _, cb) { console.log(data); cb() } })
+
+// Pipeline
+pipeline(rs, iomem.get('test:b'), ws, err => {
   if (err) {
     console.error(err)
   }
