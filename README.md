@@ -408,7 +408,7 @@ use a static version of the methods like `Mem.get('test:a')` instead of `iomem.g
 The caveat here is that you may assume that for the methods accepting an expiry (like `set`, `add`, etc..)
 it will use the default expiry that you have passed into the client constructor in case you omit the method argument.
 
-But the reality is that it won't know anything about your client instances and therefore their configs as it's a
+But in reality it won't know anything about your client instances and therefore their configs as it's a
 static class method. So it will fall to using the default 1 day interval as an expiry.
 
 In order to supply static methods with default expiry, please use `Mem.setDefaultExpiry(expiry)` static method.
