@@ -543,8 +543,10 @@ describe('client', () => {
   })
 
   describe('version', () => {
-    it('gets version string', async () => {
-      expect(await iomem.version()).toMatch(/^\d+\.\d+\.\d+$/)
+    it('gets version string by server', async () => {
+      const version = await iomem.version()
+      expect(version).toHaveProperty(['127.0.0.1'])
+      expect(version['127.0.0.1']).toMatch(/^\d+\.\d+\.\d+$/)
     })
   })
 
@@ -771,14 +773,17 @@ describe('client', () => {
   })
 
   describe('stat', () => {
-    it('returns server stat when no key passed', async () => {
-      expect(await iomem.stat()).toHaveProperty('uptime')
+    it('returns stats by server', async () => {
+      const stat = await iomem.stat()
+      expect(stat).toHaveProperty(['127.0.0.1'])
+      expect(stat['127.0.0.1']).toHaveProperty('uptime')
     })
 
-    it('returns server stat when key was passed', async () => {
+    it('returns stats by server when key was passed', async () => {
       await iomem.set('test:foo', 'bar')
-      const items = await iomem.stat('items')
-      expect(items).toHaveProperty('items:1:number')
+      const stat = await iomem.stat('items')
+      expect(stat).toHaveProperty(['127.0.0.1'])
+      expect(stat['127.0.0.1']).toHaveProperty('items:1:number')
     })
   })
 

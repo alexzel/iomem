@@ -141,8 +141,9 @@ const noop = createMethod(
 
 const version = createMethod(
   (_, opaque) => [OPCODES.version, DEFAULT_KEY, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque],
-  (packet, buffer) => buffer.push(packet[3].toString()),
-  (keyFlags, buffer) => (buffer[0] || null)
+  (packet, buffer, server) => (buffer[server.hostname] = packet[3].toString()),
+  (keyFlags, buffer) => buffer,
+  true
 )
 
 const append = createMethod(
@@ -171,7 +172,14 @@ const prepends = createMethod(
 
 const stat = createMethod(
   (key, opaque) => [OPCODES.stat, key, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque],
-  (packet, buffer) => packet[2] && (buffer[packet[2]] = packet[3].toString()),
+  (packet, buffer, server) => {
+    if (!buffer[server.hostname]) {
+      buffer[server.hostname] = {}
+    }
+    if (packet[2]) {
+      buffer[server.hostname][packet[2]] = packet[3].toString()
+    }
+  },
   (keyFlags, buffer, keysStat) => buffer,
   true
 )

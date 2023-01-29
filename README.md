@@ -236,13 +236,17 @@ deserialize(await iomem.get('test:foo'), FLAGS.bigint)
 
 ### FLUSH, QUIT, NOOP
 
-`flush()` - flush cached items.
+`flush()` - flush cached items on all servers.
 
-`flush(expiry)` - flush cached items in `expiry` seconds.
+`flush(expiry)` - flush cached items on all servers in `expiry` seconds.
 
-`quit()` - closes connection that query hits (either existing or a new one). Useless in multi-connection and multi-server environment.
+`quit()` - closes connection that query hits (either existing or a new one) on all servers. Useless in multi-connection and multi-server environment.
 
-`noop()` - sends empty packet and returns true on success, may be useful for pinging.
+`noop()` - sends empty packet to all servers and returns true on success, may be useful for pinging.
+
+### VERSION
+
+`version(): {<hostname>: <version>, ...}` - get Memcached version string by a server hostname.
 
 ### APPEND AND PREPEND
 
@@ -280,11 +284,11 @@ Append and prepend commands either append or prepend a string value to the exist
 
 ### STAT
 
-Stat command requests server statistics. Without a key the stat command will return a default set of statistics information.
+Stat command requests statistics from each server. Without a key the stat command will return a default set of statistics information by a server hostname'
 
-`stat(): object` - get a default set of statistics information
+`stat(): {<hostname>: object, ...}` - get a default set of statistics information by a server hostname.
 
-`stat(key): object` - get statistics set specified by key (e.g. 'items', 'slabs', 'sizes', see [Memcached wiki](https://github.com/memcached/memcached/wiki/Commands#statistics))
+`stat(key): {<hostname>: object, ...}` - get statistics specified with a key (e.g. 'items', 'slabs', 'sizes') by a server hostname, see [Memcached wiki](https://github.com/memcached/memcached/wiki/Commands#statistics).
 
 
 ### TOUCH

@@ -133,7 +133,7 @@ class NetStream extends Transform {
               if (opaques.has(opaque)) { // check opaque
                 if (packet[5] === STATUS_SUCCESS) { // success
                   if (protocol[method].format) {
-                    protocol[method].format(packet, buffer)
+                    protocol[method].format(packet, buffer, server)
                   }
                 } else if (packet[5] === STATUS_EXISTS) { // exists
                   keysStat.exists++
