@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.4.0](https://github.com/alexzel/iomem/compare/v1.3.0...v1.4.0) (2023-01-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* version and stat commands should return data by a hostname
+
+### Bug Fixes
+
+* make flush with expiry argument work properly ([9d63ee6](https://github.com/alexzel/iomem/commit/9d63ee64eb2592510db509bf337a5bba2a3ad5e2))
+* version and stat commands should return data by a hostname ([a5206cd](https://github.com/alexzel/iomem/commit/a5206cd4e87bd4389af68bc682641820372e4d45))
+
+
+### Miscellaneous Chores
+
+* release 1.4.0 ([ccc4f4e](https://github.com/alexzel/iomem/commit/ccc4f4ef4c8ec735021ae41836c07ec16a09de8c))
+
 ## [1.3.0](https://github.com/alexzel/iomem/compare/v1.2.0...v1.3.0) (2023-01-26)
 
 
