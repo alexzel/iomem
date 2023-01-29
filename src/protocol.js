@@ -130,7 +130,7 @@ const decr = createMethod(
 const quit = () =>
   [OPCODES.quit, DEFAULT_KEY, DEFAULT_VALUE, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, DEFAULT_OPAQUE]
 
-const flush = (expiry, opaque) =>
+const flush = (_, expiry, opaque) =>
   expiring(OPCODES.flush, DEFAULT_KEY, expiry, opaque)
 
 const noop = createMethod(

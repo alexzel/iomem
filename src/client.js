@@ -92,7 +92,7 @@ class Client {
   }
 
   static flush (expiry) {
-    return ['flush', expiry]
+    return ['flush', null, expiry]
   }
 
   static noop () {

@@ -526,6 +526,14 @@ describe('client', () => {
       expect(await iomem.get('test:foo')).toBe(null)
       expect(await iomem.get('test:baz')).toBe(null)
     })
+
+    it('flushes items after expiry time interval', async () => {
+      await iomem.set('test:foo', 'bar')
+      await iomem.flush(2) // expire in 2 seconds
+      expect(await iomem.get('test:foo')).toBe('bar')
+      await new Promise(resolve => setTimeout(resolve, 2000)) // wait 2 seconds
+      expect(await iomem.get('test:foo')).toBe(null)
+    })
   })
 
   describe('noop', () => {
