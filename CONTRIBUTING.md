@@ -4,7 +4,7 @@ You are welcome to contribute!
 
 ## Issue
 
-Wheather you have found a bug or want to request a feature please [open an issue](https://github.com/alexzel/iomem/issues/new/choose).
+Whether you have found a bug or want to request a feature please [open an issue](https://github.com/alexzel/iomem/issues/new/choose).
 
 
 ## Pull request
