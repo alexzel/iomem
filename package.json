@@ -1,6 +1,6 @@
 {
   "name": "iomem",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "Memcached client implementing binary protocol with native multiple keys support",
   "keywords": [
     "cache",

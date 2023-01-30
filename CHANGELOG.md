@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.3](https://github.com/alexzel/iomem/compare/v1.4.2...v1.4.3) (2023-01-30)
+
+
+### Bug Fixes
+
+* update files list in package.json ([9159ee8](https://github.com/alexzel/iomem/commit/9159ee81bed060dd83a592aa4729b17ec2c0edf7))
+
 ## [1.4.2](https://github.com/alexzel/iomem/compare/v1.4.1...v1.4.2) (2023-01-30)
 
 
