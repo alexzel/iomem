@@ -36,9 +36,6 @@
     "prepare": "husky install"
   },
   "files": [
-    "CHANGELOG.md",
-    "CONTRIBUTING.md",
-    "LICENSE",
     "src",
     "test"
   ],
