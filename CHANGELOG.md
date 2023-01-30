@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.5](https://github.com/alexzel/iomem/compare/v1.4.4...v1.4.5) (2023-01-30)
+
+
+### Bug Fixes
+
+* fix quit command test failing time to time ([1d82063](https://github.com/alexzel/iomem/commit/1d82063ef8a73d8e768a9a7593d578f60f3c8d2f))
+* fix readme and client options comments ([42267ea](https://github.com/alexzel/iomem/commit/42267eaa6d38c8894098b278161e1172693ee24f))
+
 ## [1.4.4](https://github.com/alexzel/iomem/compare/v1.4.3...v1.4.4) (2023-01-30)
 
 
