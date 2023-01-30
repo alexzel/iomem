@@ -36,7 +36,8 @@
     "prepare": "husky install"
   },
   "files": [
-    "src"
+    "src",
+    "test"
   ],
   "main": "src/client.js",
   "devDependencies": {
