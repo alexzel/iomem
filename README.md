@@ -32,7 +32,7 @@ npm install iomem
 
 ## Usage
 
-The constructor accepts two optional arguments - servers list and options object.
+The constructor accepts two optional arguments - servers list and config options.
 
 ```js
 const Mem = require('iomem')
@@ -42,7 +42,7 @@ const iomem = new Mem(['127.0.0.1:11211'], { timeout: 500, retries: 2 })
 
 See [Custom servers](#custom-servers) and [Options](#options) for more details.
 
-### Default
+### Basic usage
 
 ```js
 const Mem = require('iomem')
@@ -98,8 +98,7 @@ For more details please see [Commands](#commands) section.
   retriesFactor: 2, // request retries - exponential factor
   maxFailures: 10, // max server failures to swap server with a failover server
   failoverServers: [], // failover servers list
-  keepAliveInitialDelay: 0 // initial delay in milliseconds for keep-alive on sockets, zero means
-                           // the sockets keep-alive functionality is disabled
+  keepAliveInitialDelay: 0 // initial delay in milliseconds for keep-alive functionality
 }
 ```
 
@@ -136,11 +135,11 @@ Please note that the library automatically performs value serialization and dese
 
 Be aware that any `value` in the below commands list refers to a value of any type specified above.
 
-The following data types for `key` and `expiry` are must by ensured by the library user:
+The following data types for `key` and `expiry` must be ensured by the library user:
 
 `key: string` - storage key, 250 bytes max as defined in [Memcached](https://github.com/memcached/memcached/blob/master/memcached.h#L68)
 
-`expiry: unsigned integer` - time interval in seconds, defaults to `expiry` from the client config.
+`expiry: unsigned integer` - time interval in **seconds**, defaults to `expiry` from the config [options](#options).
 
 For more details please [Memcached commands](https://github.com/memcached/memcached/wiki/BinaryProtocolRevamped#commands).
 
@@ -158,13 +157,13 @@ For more details please [Memcached commands](https://github.com/memcached/memcac
 
 `gets([key1, ...]): {key: cas, ...}` - get a `key => cas` object for multiple keys.
 
-`getsv(key): {value, cas}|null` - get cas for a single key.
+`getsv(key): {value, cas}|null` - get cas and value for a single key.
 
 `getsv([key1, ...]): {key: {value, cas}}, ...}` - get a `key => { value, cas }` object for multiple keys.
 
 ### SET
 
-Set methods return `true` when all values were successfully set. Otherwise, when client receives `0x0001` or `0x0002` [statuses ](https://github.com/memcached/memcached/wiki/BinaryProtocolRevamped#response-status) from Memcached (this is abnormal behavior for set commands), the returned value will be `false`.
+Set methods return `true` when all values were successfully set. Otherwise, when client receives `0x0001` or `0x0002` [statuses](https://github.com/memcached/memcached/wiki/BinaryProtocolRevamped#response-status) from Memcached (this is abnormal behavior for set commands), the returned value will be `false`.
 
 `set(key, value, expiry): true|false` - set a value for a single key.
 
@@ -194,7 +193,7 @@ Replace commands set a new value for a key only when it is already set with some
 
 ### CAS
 
-The `cas` command sets a key with a new value only when `cas` parameter matches `cas` value stored in the key. To retrieve the current `cas` value for a key please see [GET](#get) commands.
+The `cas` command sets a key with a new value only when `cas` parameter matches `cas` value stored in a key. To retrieve the current `cas` value for a key please see [GET](#get) commands.
 
 `cas(key, value, cas, expiry): true|false` - set a value if the cas matches.
 
@@ -211,9 +210,9 @@ Delete commands delete a key only when it exists. The methods will return `false
 
 Increment and decrement commands add or substract the specified `delta` value from the current counter value initialized with `initial` value. You can use `SET`, `ADD`, `REPLACE` commands to set a counter value.
 
-`incr(key, initial, delta, expiry): value` - increments counter and returns its value.
+`incr(key, initial, delta, expiry): value` - increment counter and returns its value.
 
-`decr(key, initial, delta, expiry): value` - decrements coutner and returns its value.
+`decr(key, initial, delta, expiry): value` - decrement coutner and returns its value.
 
 Paramters:
 
@@ -246,11 +245,11 @@ deserialize(await iomem.get('test:foo'), FLAGS.bigint)
 
 ### VERSION
 
-`version(): {<hostname>: <version>, ...}` - get Memcached version string by a server hostname.
+`version(): {<hostname>: <version>, ...}` - get Memcached version string from all servers and return `hostname => version` object.
 
 ### APPEND AND PREPEND
 
-Append and prepend commands either append or prepend a string value to the existing value stored by a key.
+Append and prepend commands either append or prepend a string value to an existing value stored by a key.
 
 #### Append methods
 
@@ -284,11 +283,11 @@ Append and prepend commands either append or prepend a string value to the exist
 
 ### STAT
 
-Stat command requests statistics from each server. Without a key the stat command will return a default set of statistics information by a server hostname'
+Stat command requests statistics from each server. Without a key the stat command will return a default set of statistics information for each server.
 
-`stat(): {<hostname>: object, ...}` - get a default set of statistics information by a server hostname.
+`stat(): {<hostname>: object, ...}` - get a default set of statistics information in `hostname => object` format.
 
-`stat(key): {<hostname>: object, ...}` - get statistics specified with a key (e.g. 'items', 'slabs', 'sizes') by a server hostname, see [Memcached wiki](https://github.com/memcached/memcached/wiki/Commands#statistics).
+`stat(key): {<hostname>: object, ...}` - get statistics specified with a key (e.g. `items`, `slabs`, `sizes`) in `hostname => object` format, see [Memcached wiki](https://github.com/memcached/memcached/wiki/Commands#statistics).
 
 
 ### TOUCH
@@ -302,11 +301,11 @@ Touch command sets a new expiration time for a key. Returns `true` when a key ex
 
 ### GAT
 
-Gat command sets a new expiration time for a key and returns the key value.
+Gat command sets a new expiration time for a key and returns a key value.
 
 `gat(key, expiry): null|value` - set expiration time for a single key.
 
-`gat([key1, ...], expiry): [value, ...]` - set expiration time for a single key.
+`gat([key1, ...], expiry): [value, ...]` - set expiration time for a multiple keys.
 
 
 ## Streams
@@ -314,6 +313,8 @@ Gat command sets a new expiration time for a key and returns the key value.
 ### Case #1:
 
 Force `iomem` methods to return a stream instead of a promise by passing `stream: true` flag.
+
+Please see [Case #2](#case-2) for a better approach.
 
 ```js
 const Mem = require('iomem')
@@ -413,7 +414,7 @@ The caveat here is that you may assume that for the methods accepting an expiry 
 it will use the default expiry that you have passed into the client constructor in case you omit the method argument.
 
 But in reality it won't know anything about your client instances and therefore their configs as it's a
-static class method. So it will fall to using the default 1 day interval as an expiry.
+static class method. So by default it will 1 day interval as an expiry.
 
 In order to supply static methods with default expiry, please use `Mem.setDefaultExpiry(expiry)` static method.
 
