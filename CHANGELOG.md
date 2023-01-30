@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.2](https://github.com/alexzel/iomem/compare/v1.4.1...v1.4.2) (2023-01-30)
+
+
+### Miscellaneous Chores
+
+* release 1.4.2 ([e94c561](https://github.com/alexzel/iomem/commit/e94c5610c535fec82fe94694121292cced594024))
+
 ## [1.4.1](https://github.com/alexzel/iomem/compare/v1.4.0...v1.4.1) (2023-01-30)
 
 
