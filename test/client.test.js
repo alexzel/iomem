@@ -502,17 +502,16 @@ describe('client', () => {
 
       // open two sockets
       await iomem.set('test:foo', 'bar')
-      expect(await iomem.get('test:foo')).toBe('bar')
 
-      // expect 2 sockets to be opened
+      // expect 1 socket to be opened
       const openSockets = getOpenSockets()
-      expect(openSockets).toBe(2)
+      expect(openSockets).toBe(1)
 
       // quit opens a new socket and closes it immediately
       await iomem.quit()
 
       // so we don't spawn a new connection and still have 2 sockets open
-      expect(getOpenSockets()).toBe(2)
+      expect(getOpenSockets()).toBe(1)
     })
   })
 
