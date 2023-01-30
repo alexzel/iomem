@@ -500,7 +500,7 @@ describe('client', () => {
       // close all servers
       iomem.end()
 
-      // open two sockets
+      // open 1 socket
       await iomem.set('test:foo', 'bar')
 
       // expect 1 socket to be opened
@@ -510,7 +510,7 @@ describe('client', () => {
       // quit opens a new socket and closes it immediately
       await iomem.quit()
 
-      // so we don't spawn a new connection and still have 2 sockets open
+      // so we don't spawn a new connection and still have 1 socket open
       expect(getOpenSockets()).toBe(1)
     })
   })
