@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.4](https://github.com/alexzel/iomem/compare/v1.4.3...v1.4.4) (2023-01-30)
+
+
+### Bug Fixes
+
+* fix contributing.md file ([e17c740](https://github.com/alexzel/iomem/commit/e17c740dff47c4a6a939a15be6ca29c228471499))
+
 ## [1.4.3](https://github.com/alexzel/iomem/compare/v1.4.2...v1.4.3) (2023-01-30)
 
 
