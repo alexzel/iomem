@@ -16,7 +16,7 @@ const HASHRING_COMPATIBILITY = 'ketama'
 
 const DEFAULT_ADDRESS = `${Server.DEFAULT_HOSTNAME}:${Server.DEFAULT_PORT}`
 
-class Cleanup {
+class NetCleanup {
   constructor () {
     this._cleaners = new Set()
   }
@@ -67,7 +67,7 @@ class NetStream extends Transform {
 
     let serversHit = 0 // server got hit when we received a response with the last opaque sent to the server
     const keysStat = { length: 0, exists: 0, misses: 0 }
-    const cleanup = new Cleanup()
+    const cleanup = new NetCleanup()
     keysByServer.forEach((keys, server) => {
       const opaques = new Set()
       let lastOpaque
