@@ -45,7 +45,6 @@ class Server {
     const sock = this.ipc
       ? net.createConnection(this.host)
       : net.createConnection(this.port, this.host)
-
     sock.on('error', () => {
       this.destroySocket(sock.index)
     })
@@ -64,6 +63,7 @@ class Server {
     sock.setTimeout(this._timeout)
     sock.setKeepAlive(true, this.__keepAliveInitialDelay)
     sock.setNoDelay(true)
+    sock.setMaxListeners(0)
     sock.index = index === undefined
       ? ++this._socketIndex
       : index
