@@ -21,7 +21,7 @@ const memcachedFlush = util.promisify(memcached.flush).bind(memcached)
 
 // Convert Buffer to a string for Memjs, so all libraries return the same value
 const memjsGet = async (key) => {
-  const data = await memjs.get('foo')
+  const data = await memjs.get(key)
   return data.value.toString('utf8')
 }
 
