@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/alexzel/iomem/compare/v1.5.0...v1.5.1) (2023-01-31)
+
+
+### Bug Fixes
+
+* fix max socket listeners ([16d2de6](https://github.com/alexzel/iomem/commit/16d2de6245932f8e2e41875b04f8f138750224cb))
+
 ## [1.5.0](https://github.com/alexzel/iomem/compare/v1.4.5...v1.5.0) (2023-01-31)
 
 
