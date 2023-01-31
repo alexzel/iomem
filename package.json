@@ -24,7 +24,7 @@
   "author": "Alex Zelensky",
   "license": "MIT",
   "scripts": {
-    "lint": "eslint ./src",
+    "lint": "eslint ./src ./benchmark",
     "test": "jest",
     "pretest": "yarn run lint",
     "release": "yarn version",
@@ -51,7 +51,8 @@
     "eslint-plugin-n": "^15.6.0",
     "eslint-plugin-promise": "^6.1.1",
     "husky": "^8.0.3",
-    "jest": "^29.4.0"
+    "jest": "^29.4.0",
+    "tinybench": "^2.3.1"
   },
   "dependencies": {
     "hashring": "^3.2.0"
