@@ -141,7 +141,7 @@ The following data types for `key` and `expiry` must be ensured by the library u
 
 `expiry: unsigned integer` - time interval in **seconds**, defaults to `expiry` from the config [options](#options).
 
-For more details please [Memcached commands](https://github.com/memcached/memcached/wiki/BinaryProtocolRevamped#commands).
+For more details please see [Memcached commands](https://github.com/memcached/memcached/wiki/BinaryProtocolRevamped#commands).
 
 ### GET
 
@@ -452,4 +452,3 @@ iomem.end() // call end() when your script or web server exits
 ## TODOs:
 
 - Optional values compression
-- Optional keys hashing
