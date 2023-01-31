@@ -210,9 +210,13 @@ Delete commands delete a key only when it exists. The methods will return `false
 
 Increment and decrement commands add or substract the specified `delta` value from the current counter value initialized with `initial` value. You can use `SET`, `ADD`, `REPLACE` commands to set a counter value.
 
-`incr(key, initial, delta, expiry): value` - increment counter and returns its value.
+`incr(key, initial, delta, expiry): value|null` - increment counter and returns its value.
 
-`decr(key, initial, delta, expiry): value` - decrement coutner and returns its value.
+`incr([key1, ...], initial, delta, expiry): [value, ...]` - increment counter and returns its value for multiple keys.
+
+`decr(key, initial, delta, expiry): value|null` - decrement counter and returns its value.
+
+`decr([key1, ...], initial, delta, expiry): [value, ...]` - decrement counter and returns its value for multiple keys.
 
 Paramters:
 
