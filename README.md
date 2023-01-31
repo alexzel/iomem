@@ -448,7 +448,3 @@ pipeline(rs, iomem.get('test:b'), ws, err => {
 
 iomem.end() // call end() when your script or web server exits
 ```
-
-## TODOs:
-
-- Optional values compression
