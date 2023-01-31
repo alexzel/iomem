@@ -7,6 +7,8 @@ const Memcached = require('memcached')
 const Memjs = require('memjs').Client
 const Mem = require('../src/client')
 
+const BENCH_TIME = 1000
+
 // Create all clients
 const memcached = new Memcached('127.0.0.1:11211')
 const memjs = Memjs.create('127.0.0.1:11211')
@@ -22,7 +24,7 @@ const memcachedFlush = util.promisify(memcached.flush).bind(memcached)
 // Convert Buffer to a string for Memjs, so all libraries return the same value
 const memjsGet = async (key) => {
   const data = await memjs.get(key)
-  return data.value.toString('utf8')
+  return data && data.value ? data.value.toString('utf8') : null
 }
 
 // Close all sockets, so no libraries are pre-connected
@@ -31,7 +33,7 @@ memjs.close()
 memcached.end()
 
 // iomem task
-const iomemTask = new Bench({ time: 1000 })
+const iomemTask = new Bench({ time: BENCH_TIME })
 iomemTask.addEventListener('complete', () => {
   iomem.end()
 })
@@ -41,16 +43,18 @@ iomemTask.add('iomem', async () => {
   await iomem.get('foo')
   await iomem.del('foo')
 
-  // multi
+  // multi-set
   await iomem.setk({ baz: 'qux', a: '1', b: '2', f: '3' }, 10)
-  await iomem.get(['baz', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])
+
+  // multi-get
+  await iomem.getk(['baz', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])
 
   // flush
   await iomem.flush()
 })
 
 // memjs task
-const memjsTask = new Bench({ time: 1000 })
+const memjsTask = new Bench({ time: BENCH_TIME })
 memjsTask.addEventListener('complete', () => {
   memjs.close()
 })
@@ -60,11 +64,13 @@ memjsTask.add('memjs', async () => {
   await memjsGet('foo')
   await memjs.delete('foo')
 
-  // multi
+  // multi-set
   await memjs.set('baz', 'qux', { expires: 10 })
   await memjs.set('a', '1', { expires: 10 })
   await memjs.set('b', '2', { expires: 10 })
   await memjs.set('f', '3', { expires: 10 })
+
+  // multi-get
   await memjsGet('baz')
   await memjsGet('a')
   await memjsGet('b')
@@ -80,7 +86,7 @@ memjsTask.add('memjs', async () => {
 })
 
 // memcached task
-const memcachedTask = new Bench({ time: 1000 })
+const memcachedTask = new Bench({ time: BENCH_TIME })
 memcachedTask.addEventListener('complete', () => {
   memcached.end()
 })
@@ -90,11 +96,13 @@ memcachedTask.add('memcached', async () => {
   await memcachedGet('foo')
   await memcachedDel('foo')
 
-  // multi
+  // multi-set
   await memcachedSet('baz', 'qux', 10)
   await memcachedSet('a', '1', 10)
   await memcachedSet('b', '2', 10)
   await memcachedSet('f', '3', 10)
+
+  // multi-get
   await memcachedGetMulti(['baz', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])
 
   // flush
