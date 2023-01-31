@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.0](https://github.com/alexzel/iomem/compare/v1.4.5...v1.5.0) (2023-01-31)
+
+
+### Features
+
+* add TypeScript types ([5b678fe](https://github.com/alexzel/iomem/commit/5b678fed053905904f5d28154bd952988a05d2d2))
+
+
+### Bug Fixes
+
+* fix increment and decrement signatures in the readme ([dc53585](https://github.com/alexzel/iomem/commit/dc535854b5f7ac71ce9af09c3d7f4dc1ac0935e6))
+
 ## [1.4.5](https://github.com/alexzel/iomem/compare/v1.4.4...v1.4.5) (2023-01-30)
 
 
