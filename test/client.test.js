@@ -432,72 +432,9 @@ describe('client', () => {
     })
   })
 
-  /* eslint-disable no-new-wrappers */
-  describe('serializer', () => {
-    it('reads and writes various data types', async () => {
-      // integer
-      await iomem.set('test:foo', 10)
-      expect(await iomem.get('test:foo')).toBe(10)
-
-      // float
-      await iomem.set('test:foo', 3.14)
-      expect(await iomem.get('test:foo')).toBe(3.14)
-
-      // boolean
-      await iomem.set('test:foo', true)
-      expect(await iomem.get('test:foo')).toBe(true)
-
-      // string
-      await iomem.set('test:foo', 'abc')
-      expect(await iomem.get('test:foo')).toBe('abc')
-
-      // String
-      await iomem.set('test:foo', new String('abc'))
-      expect(await iomem.get('test:foo')).toStrictEqual(new String('abc'))
-
-      // BigInt
-      await iomem.set('test:foo', 100n)
-      expect(await iomem.get('test:foo')).toBe(100n)
-
-      // Date
-      const date = new Date()
-      await iomem.set('test:foo', date)
-      expect(await iomem.get('test:foo')).toStrictEqual(date)
-
-      // Buffer
-      const buffer = Buffer.from(['a', 'b', 'c'])
-      await iomem.set('test:foo', buffer)
-      expect(await iomem.get('test:foo')).toStrictEqual(buffer)
-
-      // array
-      await iomem.set('test:foo', [1, 2])
-      expect(await iomem.get('test:foo')).toStrictEqual([1, 2])
-
-      // object
-      const obj = {
-        int: 10,
-        float: 3.14,
-        bool: true,
-        str: 'abc',
-        Str: new String('abc'),
-        big: 100n,
-        date: new Date(),
-        buf: Buffer.from(['a', 'b', 'c']),
-        arr: [1, 2],
-        obj: {
-          a: 1000,
-          b: true,
-          d: new Date()
-        }
-      }
-      await iomem.set('test:foo', obj)
-      expect(await iomem.get('test:foo')).toStrictEqual(obj)
-    })
-  })
-
   describe('quit', () => {
     it('closes connection', async () => {
-      // close all servers
+      // end all sockets
       iomem.end()
 
       // open 1 socket
@@ -838,6 +775,69 @@ describe('client', () => {
     it('touches and gets set keys and ignores unset keys for multi-key', async () => {
       await iomem.set('test:foo', 'bar')
       expect(await iomem.get(['test:foo', 'test:baz'], 1)).toStrictEqual(['bar'])
+    })
+  })
+
+  /* eslint-disable no-new-wrappers */
+  describe('serializer', () => {
+    it('reads and writes various data types', async () => {
+      // integer
+      await iomem.set('test:foo', 10)
+      expect(await iomem.get('test:foo')).toBe(10)
+
+      // float
+      await iomem.set('test:foo', 3.14)
+      expect(await iomem.get('test:foo')).toBe(3.14)
+
+      // boolean
+      await iomem.set('test:foo', true)
+      expect(await iomem.get('test:foo')).toBe(true)
+
+      // string
+      await iomem.set('test:foo', 'abc')
+      expect(await iomem.get('test:foo')).toBe('abc')
+
+      // String
+      await iomem.set('test:foo', new String('abc'))
+      expect(await iomem.get('test:foo')).toStrictEqual(new String('abc'))
+
+      // BigInt
+      await iomem.set('test:foo', 100n)
+      expect(await iomem.get('test:foo')).toBe(100n)
+
+      // Date
+      const date = new Date()
+      await iomem.set('test:foo', date)
+      expect(await iomem.get('test:foo')).toStrictEqual(date)
+
+      // Buffer
+      const buffer = Buffer.from(['a', 'b', 'c'])
+      await iomem.set('test:foo', buffer)
+      expect(await iomem.get('test:foo')).toStrictEqual(buffer)
+
+      // array
+      await iomem.set('test:foo', [1, 2])
+      expect(await iomem.get('test:foo')).toStrictEqual([1, 2])
+
+      // object
+      const obj = {
+        int: 10,
+        float: 3.14,
+        bool: true,
+        str: 'abc',
+        Str: new String('abc'),
+        big: 100n,
+        date: new Date(),
+        buf: Buffer.from(['a', 'b', 'c']),
+        arr: [1, 2],
+        obj: {
+          a: 1000,
+          b: true,
+          d: new Date()
+        }
+      }
+      await iomem.set('test:foo', obj)
+      expect(await iomem.get('test:foo')).toStrictEqual(obj)
     })
   })
 })
