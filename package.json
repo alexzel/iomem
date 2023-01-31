@@ -37,9 +37,11 @@
   },
   "files": [
     "src",
-    "test"
+    "test",
+    "index.d.ts"
   ],
   "main": "src/client.js",
+  "types": "index.d.ts",
   "devDependencies": {
     "@commitlint/cli": "^17.4.2",
     "@commitlint/config-conventional": "^17.4.2",
