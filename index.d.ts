@@ -3,7 +3,7 @@
 import { Transform } from 'node:stream';
 
 declare class Mem {
-  constructor(servers?: Mem.Addresses, options?: Mem.Options);
+  constructor(servers?: Mem.Addresses|Mem.Address, options?: Mem.Options);
 
   static DEFAULT_EXPIRY: Mem.Expiry;
   static setDefaultExpiry(expiry?: Mem.Expiry): void;

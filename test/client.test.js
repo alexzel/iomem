@@ -19,7 +19,7 @@ describe('client', () => {
   }
 
   beforeAll(() => {
-    iomem = new Mem(['memcached:test@127.0.0.1'], {
+    iomem = new Mem('memcached:test@127.0.0.1', {
       connectionTimeout: 500,
       timeout: 1000
     })

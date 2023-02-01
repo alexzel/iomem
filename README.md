@@ -40,6 +40,8 @@ const iomem = new Mem(['127.0.0.1:11211'], { timeout: 500, retries: 2 })
 ...
 ```
 
+The first argument also accepts a string when you have only one server.
+
 See [Custom servers](#custom-servers) and [Options](#options) for more details.
 
 ### Basic usage

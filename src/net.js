@@ -201,6 +201,10 @@ class Net {
     this._servers = new Map()
     this._opaque = 0
 
+    if (!Array.isArray(servers)) {
+      servers = [servers]
+    }
+
     servers.forEach(address => {
       const server = new Server(address, this._options.maxConnections, this._options.connectionTimeout, this._options.keepAliveInitialDelay)
       this._servers.set(server.hostname, server)
