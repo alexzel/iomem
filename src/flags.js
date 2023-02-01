@@ -14,10 +14,10 @@ const FLAGS = {
   // Instances
   Buffer: 1 << 3, // buffers are handled as they are
   Date:   1 << 4, // date is a common type that we want to handle
-  String: 1 << 5, // string object must remain a string object
+  String: 1 << 5  // string object must remain a string object
 
   // Compression flag
-  compressed: 0b10000000000000000000000000000000
+  // compressed: 0b01000000000000000000000000000000
 }
 
 module.exports = FLAGS
