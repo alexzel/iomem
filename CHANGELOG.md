@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.5.2](https://github.com/alexzel/iomem/compare/v1.5.1...v1.5.2) (2023-02-01)
+
+
+### Features
+
+* constructor can accept both server as a string or servers as an array ([6bdc83e](https://github.com/alexzel/iomem/commit/6bdc83e78faac127d684ece5d7983ce256490040))
+
+
+### Miscellaneous Chores
+
+* release 1.5.2 ([0a20cef](https://github.com/alexzel/iomem/commit/0a20cef63eee5b9749f358cb6ead996e19c451aa))
+
 ## [1.5.1](https://github.com/alexzel/iomem/compare/v1.5.0...v1.5.1) (2023-01-31)
 
 
