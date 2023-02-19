@@ -38,7 +38,7 @@ const expiring = (opcode, key, expiry, opaque = DEFAULT_OPAQUE) => {
 }
 
 // append and prepend
-const midifier = (opcode, key, value, opaque = DEFAULT_OPAQUE) => {
+const modifier = (opcode, key, value, opaque = DEFAULT_OPAQUE) => {
   const [buffer] = serialize(value)
   return [opcode, key, buffer, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque]
 }
@@ -147,25 +147,25 @@ const version = createMethod(
 )
 
 const append = createMethod(
-  (key, value, opaque) => midifier(OPCODES.append, key, value, opaque),
+  (key, value, opaque) => modifier(OPCODES.append, key, value, opaque),
   null,
   (keyFlags, buffer, keysStat) => !keysStat.misses && !keysStat.exists
 )
 
 const appends = createMethod(
-  (key, value, opaque) => midifier(OPCODES.append, key, value, opaque),
+  (key, value, opaque) => modifier(OPCODES.append, key, value, opaque),
   (packet, buffer) => buffer.push(packet[6]),
   (keyFlags, buffer, keysStat) => keyFlags.isMultikey ? buffer : keysStat.misses ? null : buffer[0]
 )
 
 const prepend = createMethod(
-  (key, value, opaque) => midifier(OPCODES.prepend, key, value, opaque),
+  (key, value, opaque) => modifier(OPCODES.prepend, key, value, opaque),
   null,
   (keyFlags, buffer, keysStat) => !keysStat.misses && !keysStat.exists
 )
 
 const prepends = createMethod(
-  (key, value, opaque) => midifier(OPCODES.prepend, key, value, opaque),
+  (key, value, opaque) => modifier(OPCODES.prepend, key, value, opaque),
   (packet, buffer) => buffer.push(packet[6]),
   (keyFlags, buffer, keysStat) => keyFlags.isMultikey ? buffer : keysStat.misses ? null : buffer[0]
 )
