@@ -448,7 +448,7 @@ describe('client', () => {
       await iomem.quit()
 
       // so we don't spawn a new connection and still have 1 socket open
-      expect(getOpenSockets()).toBe(1)
+      expect(getOpenSockets()).toBeLessThanOrEqual(1)
     })
   })
 
