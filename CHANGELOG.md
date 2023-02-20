@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.3](https://github.com/alexzel/iomem/compare/v1.5.2...v1.5.3) (2023-02-20)
+
+
+### Bug Fixes
+
+* fix initial delay parameter for server keep alive ([130a085](https://github.com/alexzel/iomem/commit/130a085c5ebf6e129fc6d169d22715c7c604222b))
+
 ## [1.5.2](https://github.com/alexzel/iomem/compare/v1.5.1...v1.5.2) (2023-02-01)
 
 
