@@ -61,7 +61,7 @@ class Server {
       this.destroySocket(sock.index)
     })
     sock.setTimeout(this._timeout)
-    sock.setKeepAlive(true, this.__keepAliveInitialDelay)
+    sock.setKeepAlive(true, this._keepAliveInitialDelay)
     sock.setNoDelay(true)
     sock.setMaxListeners(0)
     sock.index = index === undefined
