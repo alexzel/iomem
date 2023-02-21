@@ -7,7 +7,7 @@ const Memcached = require('memcached')
 const Memjs = require('memjs').Client
 const Mem = require('../src/client')
 
-const BENCH_TIME = 1000
+const BENCH_TIME = 10000
 
 // Create all clients
 const memcached = new Memcached('127.0.0.1:11211')
@@ -112,21 +112,15 @@ memcachedTask.add('memcached', async () => {
 // Benchmark runner
 const run = async () => {
   // warmup sockets and run iomem task
-  for (let i = 0; i < 10; i++) {
-    await iomem.get('test')
-  }
+  await Promise.all(Array(100).fill().map(() => iomem.get('test')))
   await iomemTask.run()
 
   // warmup sockets and run memjs task
-  for (let i = 0; i < 10; i++) {
-    await memjs.get('test')
-  }
+  await Promise.all(Array(100).fill().map(() => memjs.get('test')))
   await memjsTask.run()
 
   // warmup sockets and run memcached task
-  for (let i = 0; i < 10; i++) {
-    await memcachedGet('test')
-  }
+  await Promise.all(Array(100).fill().map(() => memcachedGet('test')))
   await memcachedTask.run()
 
   // print results
