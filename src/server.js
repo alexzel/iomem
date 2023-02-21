@@ -33,6 +33,7 @@ class Server {
     })
 
     this._sockets = []
+    this._socketsPool = new Set()
     this._socketIndex = -1
     this._maxSockets = maxSockets
     this._timeout = timeout
@@ -60,10 +61,27 @@ class Server {
     sock.on('end', () => {
       this.destroySocket(sock.index)
     })
+
+    const pipe = sock.pipe.bind(sock)
+    const unpipe = sock.unpipe.bind(sock)
+    sock.pipe = (dest, opts) => {
+      sock.workers++
+      this._socketsPool.delete(sock.index)
+      return pipe(dest, opts)
+    }
+    sock.unpipe = (dest) => {
+      sock.workers = Math.max(sock.workers - 1, 0)
+      if (!sock.workers) {
+        this._socketsPool.add(sock.index)
+      }
+      return unpipe(dest)
+    }
+
     sock.setTimeout(this._timeout)
     sock.setKeepAlive(true, this._keepAliveInitialDelay)
     sock.setNoDelay(true)
     sock.setMaxListeners(0)
+    sock.workers = 0
     sock.index = index === undefined
       ? ++this._socketIndex
       : index
@@ -79,19 +97,30 @@ class Server {
       this._sockets[index].destroy()
       delete this._sockets[index]
     }
+    this._socketsPool.delete(index)
+  }
+
+  getSocketByIndex (index) {
+    if (!this._sockets[index]) { // recreate when destroyed
+      this._sockets[index] = this.createSocket(index)
+    }
+    return this._sockets[index]
   }
 
   getSocket () {
-    // create new socket and return it
+    // take free socket from sockets pool
+    if (this._socketsPool.size > 0) {
+      return this.getSocketByIndex(this._socketsPool.values().next().value)
+    }
+
+    // otherwise create new socket if not reached max sockets count
     if (this._sockets.length < this._maxSockets) {
       return this.createSocket()
     }
+
     // pick the next socket in the sockets ring
     this._socketIndex = (this._socketIndex + 1) % this._maxSockets
-    if (!this._sockets[this._socketIndex]) { // recreate when destroyed
-      this._sockets[this._socketIndex] = this.createSocket(this._socketIndex)
-    }
-    return this._sockets[this._socketIndex]
+    return this.getSocketByIndex(this._socketIndex)
   }
 
   isFailed () {
@@ -108,8 +137,9 @@ class Server {
   }
 
   end () {
-    this._sockets.forEach(sock => sock.end())
+    this._sockets.map(sock => this.destroySocket(sock.index))
     this._sockets = []
+    this._socketsPool = new Set()
     this._socketIndex = -1
   }
 }
