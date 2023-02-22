@@ -259,7 +259,7 @@ class Net {
   serverFailure = server => {
     // all the below makes sense only when we have some failover servers
     if (this._failovers.length) {
-      // server is already failed, so nothing
+      // server is already failed, so do nothing
       if (server.isFailed()) {
         return
       }
@@ -273,7 +273,7 @@ class Net {
       const failover = this._failovers.shift()
       this._failovers.push(server)
 
-      // don't forget to revive the server in case it failed previously failed
+      // don't forget to revive the server in case it previously failed
       failover.revive()
 
       // add failover server into servers map
