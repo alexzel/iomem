@@ -129,17 +129,18 @@ class NetStream extends Transform {
             const opaque = header[header.length - 1]
             if (opaques.has(opaque)) {
               const packet = parsePacket(chunks.slice(0, packetSize), header)
+              const status = packet[5]
               serversHit += Number(opaque === lastOpaque && (!data.seq || !(packet[2] && packet[3])))
-              if (packet[5] === STATUS_SUCCESS) { // success
+              if (status === STATUS_SUCCESS) { // success
                 if (protocol[method].format) {
                   protocol[method].format(packet, buffer, server)
                 }
-              } else if (packet[5] === STATUS_EXISTS) { // exists
+              } else if (status === STATUS_EXISTS) { // exists
                 keysStat.exists++
-              } else if (packet[5] === STATUS_NOT_FOUND || packet[5] === STATUS_NOT_STORED) { // not found
+              } else if (status === STATUS_NOT_FOUND || status === STATUS_NOT_STORED) { // not found
                 keysStat.misses++
               } else {
-                error = new Error(`iomem: response error: ${STATUS_MESSAGE_MAP[packet[5]] || `${STATUS_MESSAGE_UNKOWN} (${packet[5]})`}`)
+                error = new Error(`iomem: response error: ${STATUS_MESSAGE_MAP[status] || `${STATUS_MESSAGE_UNKOWN} (${status})`}`)
               }
             }
             chunks = chunks.slice(packetSize)
@@ -221,7 +222,7 @@ class Net {
     let server
     return keys.reduce((map, key) => {
       server = this._servers.length === 1
-        ? this._servers.values().next().value
+        ? server || this._servers.values().next().value
         : this._servers.get(this._ring.get(key))
       if (map.has(server)) {
         map.get(server).add(key)
@@ -237,7 +238,7 @@ class Net {
     const map = new Map()
     for (const key in keys) {
       server = this._servers.length === 1
-        ? this._servers.values().next().value
+        ? server || this._servers.values().next().value
         : this._servers.get(this._ring.get(key))
       if (map.has(server)) {
         map.get(server).set(key, keys[key])
