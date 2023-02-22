@@ -126,22 +126,20 @@ class NetStream extends Transform {
           }
           const packetSize = header[5] + HEADER_LENGTH
           if (chunks.length >= packetSize) { // check packet size
-            const packet = parsePacket(chunks.slice(0, packetSize), header)
-            if (packet) { // check packet
-              const opaque = packet[packet.length - 1]
+            const opaque = header[header.length - 1]
+            if (opaques.has(opaque)) {
+              const packet = parsePacket(chunks.slice(0, packetSize), header)
               serversHit += Number(opaque === lastOpaque && (!data.seq || !(packet[2] && packet[3])))
-              if (opaques.has(opaque)) { // check opaque
-                if (packet[5] === STATUS_SUCCESS) { // success
-                  if (protocol[method].format) {
-                    protocol[method].format(packet, buffer, server)
-                  }
-                } else if (packet[5] === STATUS_EXISTS) { // exists
-                  keysStat.exists++
-                } else if (packet[5] === STATUS_NOT_FOUND || packet[5] === STATUS_NOT_STORED) { // not found
-                  keysStat.misses++
-                } else {
-                  error = new Error(`iomem: response error: ${STATUS_MESSAGE_MAP[packet[5]] || `${STATUS_MESSAGE_UNKOWN} (${packet[5]})`}`)
+              if (packet[5] === STATUS_SUCCESS) { // success
+                if (protocol[method].format) {
+                  protocol[method].format(packet, buffer, server)
                 }
+              } else if (packet[5] === STATUS_EXISTS) { // exists
+                keysStat.exists++
+              } else if (packet[5] === STATUS_NOT_FOUND || packet[5] === STATUS_NOT_STORED) { // not found
+                keysStat.misses++
+              } else {
+                error = new Error(`iomem: response error: ${STATUS_MESSAGE_MAP[packet[5]] || `${STATUS_MESSAGE_UNKOWN} (${packet[5]})`}`)
               }
             }
             chunks = chunks.slice(packetSize)
