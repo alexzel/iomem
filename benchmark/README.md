@@ -1,10 +1,10 @@
 # Benchmark
 
-The benchmark measures single and multiple key requests (if a library does not have a multiple keys command it gets replaced with multiple commands).
+The benchmark measures single and multiple key requests (if a library does not have a multiple keys command it gets replaced with multiple parallel commands).
 
 Each library runs in its own benchmark task. All tasks ran in a sequence one by one with closing all connections once complete.
 
-All libraries warm up sockets before running their task by performing 10 commands in order to reach max connections, so we do not measure a new socket creation time.
+All libraries warm up sockets before running their task by performing 100 commands in order to reach max connections, so we do not measure a new socket creation time.
 
 All methods are called using async/await (if a library method does not have an async version we promisify it).
 
@@ -30,6 +30,6 @@ node ./benchmark.js
 
 |Task Name|Average Time (ps)|Variance (ps)|
 |---------|-----------------|-------------|
-|**iomem**|**2363.708414611059**|**162.58298409891376**|
-|memjs|6002.046834585834|421.6796193948696|
-|memcached|3286.121289242113|322.6199303647973|
+|**iomem**|**3367.146533407621**|**736.9406210268396**|
+|memjs|3517.803941484083|310.74936921234286|
+|memcached|3781.4664800212067|2179.6490719868934|
