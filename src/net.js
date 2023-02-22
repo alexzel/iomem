@@ -192,7 +192,7 @@ class Net {
   static _opaque = 0
 
   static opaque () {
-    Net._opaque = ++Net._opaque % 0xffffffff
+    Net._opaque = (Net._opaque + 1) & 0xffffffff
     return Net._opaque
   }
 
