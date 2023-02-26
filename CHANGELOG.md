@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.4](https://github.com/alexzel/iomem/compare/v1.5.3...v1.5.4) (2023-02-26)
+
+
+### Performance Improvements
+
+* do not parse packet when opaque is not from the current request ([9fdfbcc](https://github.com/alexzel/iomem/commit/9fdfbcce27e171fcaa5ff0fc3f2a691e0972f5c0))
+* replace % with bitwise & b/c divisor is power of 2 ([ed61f93](https://github.com/alexzel/iomem/commit/ed61f932c4ace89af6408ec00807fcab871c6ef1))
+
 ## [1.5.3](https://github.com/alexzel/iomem/compare/v1.5.2...v1.5.3) (2023-02-20)
 
 
