@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.5](https://github.com/alexzel/iomem/compare/v1.5.4...v1.5.5) (2023-02-27)
+
+
+### Performance Improvements
+
+* replace unnecessary map with for loop ([e7061de](https://github.com/alexzel/iomem/commit/e7061de89fab937ddf3bbacb5cb0de02c7a0f892))
+
 ## [1.5.4](https://github.com/alexzel/iomem/compare/v1.5.3...v1.5.4) (2023-02-26)
 
 
