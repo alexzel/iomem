@@ -137,7 +137,12 @@ class Server {
   }
 
   end () {
-    this._sockets.map(sock => this.destroySocket(sock.index))
+    // destroy sockets
+    for (const sock of this._sockets) {
+      this.destroySocket(sock.index)
+    }
+
+    // ensure default values
     this._sockets = []
     this._socketsPool = new Set()
     this._socketIndex = -1
