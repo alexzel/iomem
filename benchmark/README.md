@@ -26,6 +26,14 @@ yarn add memcached memjs
 node ./benchmark.js
 ```
 
+## Results on MacBook Pro (15-inch, 2017)
+
+|Task Name|Average Time (ps)|Variance (ps)|
+|---------|-----------------|-------------|
+|**iomem**|**7529.807818563361**|**2311.659311262639**|
+|memjs|9730.084081297939|4746.691067722728|
+|memcached|8655.180655676742|5440.27880491126|
+
 ## Results on MacBook Pro (16-inch, 2021)
 
 |Task Name|Average Time (ps)|Variance (ps)|
