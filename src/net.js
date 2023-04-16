@@ -198,7 +198,6 @@ class Net {
   constructor (servers = [DEFAULT_ADDRESS], options = {}) {
     this._options = options
     this._servers = new Map()
-    this._opaque = 0
 
     if (!Array.isArray(servers)) {
       servers = [servers]
