@@ -118,13 +118,13 @@ const del = createMethod(
 const incr = createMethod(
   (key, initial, delta, expiry, opaque) => counter(OPCODES.increment, key, initial, delta, expiry, opaque),
   (packet, buffer) => buffer.push(packet[3].readBigInt64BE(0)),
-  (keyFlags, buffer, keysStat) => keyFlags.isArray ? buffer : (buffer[0] || null)
+  (keyFlags, buffer) => keyFlags.isArray ? buffer : (buffer[0] || null)
 )
 
 const decr = createMethod(
   (key, initial, delta, expiry, opaque) => counter(OPCODES.decrement, key, initial, delta, expiry, opaque),
   (packet, buffer) => buffer.push(packet[3].readBigInt64BE(0)),
-  (keyFlags, buffer, keysStat) => keyFlags.isArray ? buffer : (buffer[0] || null)
+  (keyFlags, buffer) => keyFlags.isArray ? buffer : (buffer[0] || null)
 )
 
 const quit = () =>
@@ -180,7 +180,7 @@ const stat = createMethod(
       buffer[server.hostname][packet[2]] = packet[3].toString()
     }
   },
-  (keyFlags, buffer, keysStat) => buffer,
+  (keyFlags, buffer) => buffer,
   true
 )
 
