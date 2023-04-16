@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.6](https://github.com/alexzel/iomem/compare/v1.5.5...v1.5.6) (2023-04-16)
+
+
+### Bug Fixes
+
+* remove unused arguments ([5d00654](https://github.com/alexzel/iomem/commit/5d00654c7048dc78aba6ea35b9c432f9a3fc9e13))
+* remove unused class property ([8f07975](https://github.com/alexzel/iomem/commit/8f079758f0081d0568bf520a580c6f86a645b7df))
+
 ## [1.5.5](https://github.com/alexzel/iomem/compare/v1.5.4...v1.5.5) (2023-02-27)
 
 
