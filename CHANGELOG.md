@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.9](https://github.com/alexzel/iomem/compare/v1.5.8...v1.5.9) (2023-04-23)
+
+
+### Bug Fixes
+
+* revive server when connection restored ([8c7d718](https://github.com/alexzel/iomem/commit/8c7d7184e2ad1f6de57207800a369adc70ba0191))
+* revive with restored connection by failed flag as well ([cf6a4ae](https://github.com/alexzel/iomem/commit/cf6a4ae85e54765fe733ff9ffe31148bfe06058c))
+
 ## [1.5.8](https://github.com/alexzel/iomem/compare/v1.5.7...v1.5.8) (2023-04-23)
 
 
