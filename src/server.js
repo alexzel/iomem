@@ -56,7 +56,7 @@ class Server {
       }
     })
     sock.once('connect', () => {
-      if (this._failures > 0) {
+      if (this._failures > 0 || this._failed) {
         this.revive()
       }
       sock.setTimeout(0)
