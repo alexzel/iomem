@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.8](https://github.com/alexzel/iomem/compare/v1.5.7...v1.5.8) (2023-04-23)
+
+
+### Bug Fixes
+
+* fix comments typo ([63161af](https://github.com/alexzel/iomem/commit/63161af624cefe2b3e7ce5e2eb9f67e47e6827dc))
+* fix undefined socket in server.end() when server becomes unavailable ([94d7102](https://github.com/alexzel/iomem/commit/94d71029fe9571505f033526e80dbd884b7d133b))
+
 ## [1.5.7](https://github.com/alexzel/iomem/compare/v1.5.6...v1.5.7) (2023-04-23)
 
 
