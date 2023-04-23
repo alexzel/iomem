@@ -56,6 +56,9 @@ class Server {
       }
     })
     sock.once('connect', () => {
+      if (this._failures > 0) {
+        this.revive()
+      }
       sock.setTimeout(0)
     })
     sock.on('end', () => {
