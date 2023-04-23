@@ -43,7 +43,7 @@ const modifier = (opcode, key, value, opaque = DEFAULT_OPAQUE) => {
   return [opcode, key, buffer, DEFAULT_EXTRAS, DEFAULT_STATUS, DEFAULT_CAS, opaque]
 }
 
-// creates protocol method function and extend it with format(), result(), and bykeys flag
+// creates protocol method function and extends it with format(), result(), and bykeys flag
 const createMethod = (method, format, result, bykeys = false) => {
   method.format = format
   method.result = result
