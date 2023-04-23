@@ -139,7 +139,7 @@ class Server {
   end () {
     // destroy sockets
     for (const sock of this._sockets) {
-      this.destroySocket(sock.index)
+      sock && this.destroySocket(sock.index)
     }
 
     // ensure default values
