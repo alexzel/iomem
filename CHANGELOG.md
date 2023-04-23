@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.7](https://github.com/alexzel/iomem/compare/v1.5.6...v1.5.7) (2023-04-23)
+
+
+### Bug Fixes
+
+* fix bitwise modulo for opaque increment ([a5051a4](https://github.com/alexzel/iomem/commit/a5051a4ace6b122301801e75d368b06efa257d07))
+
 ## [1.5.6](https://github.com/alexzel/iomem/compare/v1.5.5...v1.5.6) (2023-04-16)
 
 
