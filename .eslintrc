@@ -9,6 +9,6 @@
   },
   "rules": {
     "strict": ["error", "global"],
-    "no-multi-spaces": ["error", { ignoreEOLComments: true }]
+    "no-multi-spaces": ["error", { "ignoreEOLComments": true }]
   }
 }
