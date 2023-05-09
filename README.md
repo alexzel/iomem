@@ -420,7 +420,7 @@ The caveat here is that you may assume that for the methods accepting an expiry 
 it will use the default expiry that you have passed into the client constructor in case you omit the method argument.
 
 But in reality it won't know anything about your client instances and therefore their configs as it's a
-static class method. So by default it will 1 day interval as an expiry.
+static class method. So by default it will be 1 day interval as an expiry.
 
 In order to supply static methods with default expiry, please use `Mem.setDefaultExpiry(expiry)` static method.
 
