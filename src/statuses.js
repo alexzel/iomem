@@ -25,7 +25,7 @@ const STATUS_MESSAGE_MAP = {
   0x0086: 'Temporary failure'
 }
 
-const STATUS_MESSAGE_UNKOWN = 'Unknown response error'
+const STATUS_MESSAGE_UNKNOWN = 'Unknown response error'
 
 const STATUS_SUCCESS = 0x0000
 const STATUS_NOT_FOUND = 0x0001
@@ -34,7 +34,7 @@ const STATUS_EXISTS = 0x0002
 
 module.exports = {
   STATUS_MESSAGE_MAP,
-  STATUS_MESSAGE_UNKOWN,
+  STATUS_MESSAGE_UNKNOWN,
   STATUS_SUCCESS,
   STATUS_NOT_FOUND,
   STATUS_NOT_STORED,

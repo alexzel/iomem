@@ -8,7 +8,7 @@ const Server = require('./server')
 const protocol = require('./protocol')
 const { getQuietOpcodeByName } = require('./opcodes')
 const { buildPacket, parsePacket, parseHeader, HEADER_LENGTH, REQUEST_MAGIC, RESPONSE_MAGIC } = require('./packet')
-const { STATUS_MESSAGE_MAP, STATUS_MESSAGE_UNKOWN, STATUS_SUCCESS, STATUS_NOT_FOUND, STATUS_NOT_STORED, STATUS_EXISTS } = require('./statuses')
+const { STATUS_MESSAGE_MAP, STATUS_MESSAGE_UNKNOWN, STATUS_SUCCESS, STATUS_NOT_FOUND, STATUS_NOT_STORED, STATUS_EXISTS } = require('./statuses')
 const { getKeyFlags } = require('./keys')
 
 const HASHRING_ALGORITHM = 'md5'
@@ -140,7 +140,7 @@ class NetStream extends Transform {
               } else if (status === STATUS_NOT_FOUND || status === STATUS_NOT_STORED) { // not found
                 keysStat.misses++
               } else {
-                error = new Error(`iomem: response error: ${STATUS_MESSAGE_MAP[status] || `${STATUS_MESSAGE_UNKOWN} (${status})`}`)
+                error = new Error(`iomem: response error: ${STATUS_MESSAGE_MAP[status] || `${STATUS_MESSAGE_UNKNOWN} (${status})`}`)
               }
             }
             chunks = chunks.slice(packetSize)
