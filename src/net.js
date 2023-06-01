@@ -278,6 +278,9 @@ class Net {
       this._servers.set(failover.hostname, failover)
       this._ring.swap(server.hostname, failover.hostname)
 
+      // do not forget to eject the failed server so keys by all servers work fine
+      this._servers.delete(server.hostname)
+
       // end failed server
       server.end()
     }
