@@ -239,7 +239,9 @@ deserialize(await iomem.get('test:foo'), FLAGS.bigint)
 ...
 ```
 
-### FLUSH, QUIT, NOOP
+### FLUSH, QUIT, NOOP, VERSION
+
+_NOTE: all the following commands will make request only to **active** servers. This meaning if you have servers A, B, and C and failover server D the request will be performed on servers A, B, and C, but if you have server B failed and so replaced with failover server D, then the request will be performed on servers A, D, and C._
 
 `flush()` - flush cached items on all servers.
 
@@ -248,8 +250,6 @@ deserialize(await iomem.get('test:foo'), FLAGS.bigint)
 `quit()` - closes connection that query hits (either existing or a new one) on all servers. Useless in multi-connection and multi-server environment.
 
 `noop()` - sends empty packet to all servers and returns true on success, may be useful for pinging.
-
-### VERSION
 
 `version(): {<hostname>: <version>, ...}` - get Memcached version string from all servers and return `hostname => version` object.
 
