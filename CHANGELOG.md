@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.5.10](https://github.com/alexzel/iomem/compare/v1.5.9...v1.5.10) (2023-06-01)
+
+
+### Bug Fixes
+
+* eject failed server when replacing with failover server ([752e75a](https://github.com/alexzel/iomem/commit/752e75a2dd8da78fee73a8e5e5b71c529721c8b9))
+* fix status message typo ([43610de](https://github.com/alexzel/iomem/commit/43610debb3d066533ddad50044e731081c20f12b))
+* update readme with NOTE for multi-server commands ([c38b550](https://github.com/alexzel/iomem/commit/c38b550d136335b5be9f623f0ffa647f6a08cfb4))
+
 ## [1.5.9](https://github.com/alexzel/iomem/compare/v1.5.8...v1.5.9) (2023-04-23)
 
 
