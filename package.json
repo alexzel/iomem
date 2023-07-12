@@ -45,13 +45,13 @@
   "devDependencies": {
     "@commitlint/cli": "^17.6.5",
     "@commitlint/config-conventional": "^17.6.5",
-    "eslint": "^8.41.0",
+    "eslint": "^8.44.0",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-n": "^16.0.0",
     "eslint-plugin-promise": "^6.1.1",
     "husky": "^8.0.3",
-    "jest": "^29.5.0",
+    "jest": "^29.6.1",
     "tinybench": "^2.5.0"
   },
   "dependencies": {
