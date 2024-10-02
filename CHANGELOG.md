@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.11](https://github.com/alexzel/iomem/compare/v1.5.10...v1.5.11) (2024-10-02)
+
+
+### Bug Fixes
+
+* client fails to retrieve items larger than 64 KB ([#36](https://github.com/alexzel/iomem/issues/36)) ([c8ff0a4](https://github.com/alexzel/iomem/commit/c8ff0a451486ba66abbeb38ef5f58a9d667edafb))
+
 ## [1.5.10](https://github.com/alexzel/iomem/compare/v1.5.9...v1.5.10) (2023-06-01)
 
 
