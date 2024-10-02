@@ -52,6 +52,12 @@ describe('client', () => {
       await iomem.set('test:baz', 'qux')
       expect(await iomem.get(['test:foo', 'test:baz'])).toStrictEqual(['bar', 'qux'])
     })
+
+    it('responds when item size exceeds 64KB', async () => {
+      const value = 'a'.repeat(10 * 64 * 1024)
+      await iomem.set('test:foo', value)
+      expect(await iomem.get('test:foo')).toBe(value)
+    })
   })
 
   describe('getk', () => {
