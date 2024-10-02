@@ -122,7 +122,8 @@ class NetStream extends Transform {
         while (chunks.length >= HEADER_LENGTH && !error) {
           const header = parseHeader(chunks.slice(0, HEADER_LENGTH))
           if (header[0] !== RESPONSE_MAGIC) { // wrong magic
-            chunks = Buffer.alloc(0)
+            chunks = chunks.slice(HEADER_LENGTH)
+            continue
           }
           const packetSize = header[5] + HEADER_LENGTH
           if (chunks.length >= packetSize) { // check packet size
@@ -145,7 +146,7 @@ class NetStream extends Transform {
             }
             chunks = chunks.slice(packetSize)
           } else {
-            chunks = Buffer.alloc(0)
+            break
           }
         }
         if (error) {
